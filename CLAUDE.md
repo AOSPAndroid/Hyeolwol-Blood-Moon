@@ -1,6 +1,6 @@
 # Working on Hyeolwol
 
-Single-file browser game: everything lives in `index.html` (about 1,200 long lines, one IIFE).
+Single-file browser game: everything lives in `index.html` (about 1,800 long lines, one IIFE).
 No build, no dependencies beyond the vendored `three.min.js` (r128, global `THREE`, aliased `T`).
 Fonts come from Google Fonts (Gowun Batang, Nanum Brush Script) with serif fallbacks.
 
@@ -20,6 +20,19 @@ Fonts come from Google Fonts (Gowun Batang, Nanum Brush Script) with serif fallb
 | characters | `humanoid()` rig builder, `applyPose` (spring joints), `walk`, `lunge`, `buildPlayer`/`updPlayerM`, `buildEnemy`, `POSE.<type>`, `updEnemyM`, death animation |
 | velocity fx | blade ribbon, speed streaks, rush lines, painted slash strips (`slashTex`, `mkSlash`, `updSlash`) |
 | HUD / render | `drawHUD` (2D canvas `#c` over WebGL canvas `#g`), `render`, `frame` |
+| story mode: engine | `S` (story state), obstacle grid (`addObs`, `resolve`, `blocked`), water (`inWater`, bridges, islands), `storyPhys`, `Batch` (merges static meshes per material per 1000-unit chunk), map kits `kWalls`/`kGate`/`kHall`/`kPav`/`kHouse`/`kTree`/... |
+| story mode: world builder | `THEMES`, `storyMats`, `paintGround`, `buildMini`, `buildStory` |
+| story mode: runtime | `startChapter`, step machine `storyTick` (`talk`/`go`/`fight`/`dawn`/`end`), fights and waves, ambush packs, shrines, dialogue (`openTalk`/`advTalk`), `storyHUD` (objective, arrow, minimap) |
+| story mode: chapters | `CHAPTERS` data: map size, walls and gates, roads, rivers, halls, villages, shrines, ambushes, steps and dialogue |
+
+## Story mode notes
+
+- `G.mode` is `'arena'` or `'story'`. `AW`/`AH` are the current map size: 1100×800 in the arena, per chapter in story (up to 5400×4200). `setArena()` restores the arena world.
+- Story maps are data in `CHAPTERS`. Gates must sit on a wall segment (within 25 units) to cut it; `ong:true` adds a half-moon outer wall. Fight, go, shrine and ambush points are kept clear of generated houses and trees.
+- Every wall, building and tree registers an obstacle; `storyPhys` pushes the player, enemies and shots out each frame and keeps them inside a fight's barrier. Enemies chase in straight lines, so put fights in open ground.
+- Placement uses a seeded RNG per chapter (`srand`), so a chapter's layout is the same every time.
+- The four arena lamp lights are reused in story mode and move each frame to the four lamp spots nearest the camera.
+- `__hw.startChapter(i, fresh, element)`, `__hw.tick(dt)`, `__hw.advTalk()` and `__hw.dbg.{blocked,inWater}` exist for scripted tests. Story progress is kept in `localStorage` (`hyeolwol_story`).
 
 ## Conventions
 
@@ -51,5 +64,6 @@ Software rendering runs slower than real time, so drive tests by game state, not
 
 - Balance, timing windows and mobile frame rate have only been checked by scripted and random input, never by hand.
 - Draw calls reach about 300 with a boss and a crowd; the ink outlines roughly double character draw calls.
-- The three stages share geometry; only floor texture, lighting and weather differ.
+- The three arena stages share geometry; only floor texture, lighting and weather differ.
+- Story maps are flat; walls and buildings can hide the player when they stand just north of them.
 - No saved meta-progression; only the best score is kept in `localStorage`.
