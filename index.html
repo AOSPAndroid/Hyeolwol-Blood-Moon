@@ -93,6 +93,13 @@ button.ghost{font:inherit;font-weight:700;font-size:14px;letter-spacing:.12em;pa
 .tkt{font-size:16px;line-height:1.6;min-height:52px}
 .tkt.nar{font-style:italic;color:#5a3a20}
 .tkh{position:absolute;right:14px;bottom:8px;font-size:11px;letter-spacing:.15em;opacity:.6}
+.tkt.mem{color:#7a0d1c}
+#tkC{display:flex;flex-direction:column;gap:8px;margin-top:10px}#tkC:empty{display:none}
+.tkb{font:inherit;font-size:15px;text-align:left;padding:9px 14px;border:0;border-radius:2px;cursor:pointer;color:#f6ead2;background:#5a1a20;box-shadow:inset 0 0 0 1.5px #c9a35a}
+.tkb:hover,.tkb:focus-visible{background:#8a2430;outline:none}
+.jq{display:block;width:100%;font:inherit;text-align:left;margin:0 0 6px;padding:7px 10px;border:0;border-radius:2px;cursor:pointer;color:var(--ink);background:rgba(35,24,18,.07);box-shadow:inset 0 0 0 1px rgba(35,24,18,.25)}
+.jq.on{background:rgba(168,36,46,.14);box-shadow:inset 0 0 0 1.5px var(--red)}.jq span{font-size:12px;opacity:.8}
+.rep{display:grid;grid-template-columns:1fr 90px 64px;gap:8px;align-items:center;font-size:12px;margin:3px 0}.rep i{display:block;height:7px;background:rgba(35,24,18,.15);border-radius:3px;overflow:hidden}.rep i b{display:block;height:100%}.rep em{font-style:normal;font-weight:700;text-align:right}
 </style>
 </head>
 <body>
@@ -127,7 +134,8 @@ button.ghost{font:inherit;font-weight:700;font-size:14px;letter-spacing:.12em;pa
     <b>Tells</b><span>Ring closes = strike lands. <span class="tr">Red</span> parry or dodge. <span class="tp">Purple</span> dodge only.</span>
   </div>
   <div class="btns">
-    <button class="big" id="storyB">이야기 · STORY</button>
+    <button class="big" id="owB">열린 조선 · OPEN WORLD</button>
+    <button class="ghost" id="storyB">이야기 · STORY CHAPTERS</button>
     <button class="ghost" id="start">끝없는 사냥 · ENDLESS HUNT</button>
   </div>
   <div class="small" id="best"></div>
@@ -140,6 +148,14 @@ button.ghost{font:inherit;font-weight:700;font-size:14px;letter-spacing:.12em;pa
   <button class="ghost" id="storyBack">돌아가기 · BACK</button>
 </div></div>
 
+<div class="ov" id="owm"><div class="panel">
+  <div class="seal">開</div>
+  <h2>열린 조선</h2>
+  <div class="sub">Open Joseon · 1624</div>
+  <p class="lore">A year after a palace coup, four Houses circle the throne and one of them feeds the Blood Court. Roam the provinces, take bounties, earn or lose the favor of the Houses, and find the traitor.</p>
+  <div class="btns"><button class="big" id="owCont">계속 · CONTINUE</button><button class="ghost" id="owNew">새 여정 · NEW JOURNEY</button><button class="ghost" id="owBack">돌아가기 · BACK</button></div>
+</div></div>
+
 <div class="ov" id="chdone"><div class="panel">
   <div class="seal" id="cdSeal">完</div>
   <h1 id="cdY" style="font-size:clamp(64px,18vw,104px)">1396</h1>
@@ -149,7 +165,7 @@ button.ghost{font:inherit;font-weight:700;font-size:14px;letter-spacing:.12em;pa
   <div class="btns"><button class="big" id="cdNext">다음 장 · NEXT CHAPTER</button><button class="ghost" id="cdMenu">장 선택 · CHAPTERS</button></div>
 </div></div>
 
-<div id="talk"><div class="tk"><div class="tkn" id="tkN"></div><div class="tkt" id="tkT"></div><div class="tkh">▶ CLICK · SPACE</div></div></div>
+<div id="talk"><div class="tk"><div class="tkn" id="tkN"></div><div class="tkt" id="tkT"></div><div id="tkC"></div><div class="tkh">▶ CLICK · SPACE</div></div></div>
 
 <div class="ov" id="reward"><div class="free">
   <h2 id="rwT">Room cleared</h2>
@@ -190,7 +206,7 @@ button.ghost{font:inherit;font-weight:700;font-size:14px;letter-spacing:.12em;pa
     <b>Burning + Wind</b><span>Firestorm: spreads the burn</span>
     <b>Frozen + finisher</b><span>Shatter: heavy bonus damage</span>
   </div>
-  <div class="btns"><button class="big" id="resume">계속 · RESUME</button><button class="ghost" id="pMenu">메뉴 · MAIN MENU</button></div>
+  <div class="btns"><button class="big" id="resume">계속 · RESUME</button><button class="ghost" id="pGuide">길잡이 · Guidance</button><button class="ghost" id="pMenu">메뉴 · MAIN MENU</button></div>
 </div></div>
 
 <script src="three.min.js"></script>
@@ -225,7 +241,7 @@ const keys={};
 const inp={jx:0,jy:0,hA:false,pA:false,pD:false,pP:false,pR:false,mouseAim:false,sx:0,sy:0,wx:0,wy:0,joy:null};
 let touchMode=false;
 window.addEventListener('keydown',e=>{if(e.repeat)return;
-  if(G.state==='talk'){if(['Space','Enter','KeyJ','KeyE','NumpadEnter'].includes(e.code)){e.preventDefault();advTalk()}return}
+  if(G.state==='talk'){if(/^(Digit|Numpad)[1-9]$/.test(e.code)){pickChoice(+e.code.slice(-1)-1);return}if(['Space','Enter','KeyJ','KeyE','NumpadEnter'].includes(e.code)){e.preventDefault();advTalk()}return}
   if(e.code==='KeyM'&&G.mode==='story'){S.big=!S.big}
   keys[e.code]=true;
   if(e.code==='Space'){inp.pD=true;e.preventDefault()}
@@ -723,7 +739,7 @@ function offerCards(title,nCards,picks,nElem,done){G.state='reward';$('rwT').tex
   const c=$('cards');c.innerHTML='';G.picks=picks;let first=true;const sub=$('rwS'),lab=()=>{sub.textContent='부적 · Choose '+G.picks+(G.picks>1?' talismans':first?' talisman':' more')};lab();
   for(const r of pick){const b=mkCard(r,()=>{if(G.state!=='reward'||b.disabled)return;audioOn();b.disabled=true;b.style.display='none';r.f(P);G.relics.push(r.n);sfx(660,.2,'triangle',.06,300);first=false;if(--G.picks<=0){show('reward',false);done()}else lab()});c.appendChild(b)}
   show('reward',true);sfx(440,.3,'triangle',.06,220)}
-function togglePause(){if(G.state==='play'){G.state='pause';$('pstats').innerHTML=G.mode==='story'?storyPauseText():'Night <b>'+G.night+'</b> · Room <b>'+G.room+'</b> · Score <b>'+G.score+'</b><br>'+(G.relics.length?'Relics: '+G.relics.join(', '):'No relics yet');show('pause',true)}
+function togglePause(){if(G.state==='play'){G.state='pause';$('pGuide').hidden=G.mode!=='story';$('pstats').innerHTML=G.mode==='story'?storyPauseText():'Night <b>'+G.night+'</b> · Room <b>'+G.room+'</b> · Score <b>'+G.score+'</b><br>'+(G.relics.length?'Relics: '+G.relics.join(', '):'No relics yet');show('pause',true)}
   else if(G.state==='pause'){G.state='play';show('pause',false);last=performance.now()}}
 
 /* ---------- three.js rendering ---------- */
@@ -832,7 +848,7 @@ function buildWorld(){AR=new T.Group();scene.add(AR);const M=140,S=coarse?1024:2
 /* ---------- story mode: engine (collision, map kits, batching) ---------- */
 const ARENA_W=1100,ARENA_H=800,GS=200;
 const S={ci:0,ch:null,step:0,fight:null,pack:null,obs:[],grid:new Map(),water:[],bridges:[],islands:[],lamps:[],fires:[],shrines:[],packs:[],clear:[],roads:[],mm:[],
-  ck:null,talk:null,world:null,mini:null,big:false,disp:[],tier:1,t0:0,k0:0,flameM:null,barrier:null,beam:null,mmR:null};
+  ck:null,talk:null,world:null,mini:null,big:false,disp:[],tier:1,t0:0,k0:0,flameM:null,barrier:null,beam:null,mmR:null,rf:{},npcs:[],lore:[],marks:[],bark:null,open:false,disc:0};
 let storyMax=0;try{storyMax=+(localStorage.getItem('hyeolwol_story')||0)||0}catch(e){}
 let srand=Math.random,B_=null,M_=null,SG=null,RG=null;const sr=(a,b)=>a+srand()*(b-a),spick=a=>a[(srand()*a.length)|0];
 function seeded(a){return()=>{a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
@@ -882,16 +898,16 @@ function Batch(){this.g=new Map();this.ni=new Map()}
 Batch.prototype.put=function(mat,geo,F,lx,ly,lz,sx,sy,sz,u,v,ry,ns){const X=F.x+lx*F.c-lz*F.s,Z=F.y+lx*F.s+lz*F.c,k=mat.uuid+'|'+Math.floor(X/1000)+','+Math.floor(Z/1000)+(ns?'n':'');
   let L=this.g.get(k);if(!L)this.g.set(k,L={mat,ns,ps:[]});_q.setFromAxisAngle(_Y,-F.a+(ry||0));
   L.ps.push({geo,m:new T.Matrix4().compose(_v.set(X,ly,Z),_q,_s.set(sx,sy,sz)),u:u||1,v:v||1})};
-Batch.prototype.build=function(grp){const ni=g=>{let r=this.ni.get(g);if(!r){r=g.index?g.toNonIndexed():g;this.ni.set(g,r)}return r};
+Batch.prototype.build=function(grp,ox,oz){ox=ox||0;oz=oz||0;const ni=g=>{let r=this.ni.get(g);if(!r){r=g.index?g.toNonIndexed():g;this.ni.set(g,r)}return r};
   for(const L of this.g.values()){let n=0;for(const p of L.ps)n+=ni(p.geo).attributes.position.count;
     const pos=new Float32Array(n*3),nor=new Float32Array(n*3),uv=new Float32Array(n*2);let o=0;
     for(const p of L.ps){const g=ni(p.geo),pa=g.attributes.position.array,na=g.attributes.normal.array,ua=g.attributes.uv?g.attributes.uv.array:null,c=pa.length/3,e=p.m.elements;_n3.getNormalMatrix(p.m);const q=_n3.elements;
       for(let i=0;i<c;i++){const x=pa[i*3],y=pa[i*3+1],z=pa[i*3+2],a=na[i*3],b=na[i*3+1],cc=na[i*3+2];
-        pos[o*3]=e[0]*x+e[4]*y+e[8]*z+e[12];pos[o*3+1]=e[1]*x+e[5]*y+e[9]*z+e[13];pos[o*3+2]=e[2]*x+e[6]*y+e[10]*z+e[14];
+        pos[o*3]=e[0]*x+e[4]*y+e[8]*z+e[12]-ox;pos[o*3+1]=e[1]*x+e[5]*y+e[9]*z+e[13];pos[o*3+2]=e[2]*x+e[6]*y+e[10]*z+e[14]-oz;
         const nx=q[0]*a+q[3]*b+q[6]*cc,ny=q[1]*a+q[4]*b+q[7]*cc,nz=q[2]*a+q[5]*b+q[8]*cc,l=Math.hypot(nx,ny,nz)||1;nor[o*3]=nx/l;nor[o*3+1]=ny/l;nor[o*3+2]=nz/l;
         if(ua){uv[o*2]=ua[i*2]*p.u;uv[o*2+1]=ua[i*2+1]*p.v}o++}}
     const bg=new T.BufferGeometry();bg.setAttribute('position',new T.BufferAttribute(pos,3));bg.setAttribute('normal',new T.BufferAttribute(nor,3));bg.setAttribute('uv',new T.BufferAttribute(uv,2));
-    const m=new T.Mesh(bg,L.mat);m.castShadow=!L.ns;m.receiveShadow=true;grp.add(m);S.disp.push(bg)}
+    const m=new T.Mesh(bg,L.mat);m.position.set(ox,0,oz);m.castShadow=!L.ns;m.receiveShadow=true;grp.add(m);S.disp.push(bg)}
   for(const[g,r]of this.ni)if(r!==g)r.dispose()};
 function sg(){if(!SG)SG={box:new T.BoxGeometry(1,1,1),cyl:new T.CylinderGeometry(1,1,1,8),ico:new T.IcosahedronGeometry(1,0),cone:new T.ConeGeometry(1,1,7),cone6:new T.ConeGeometry(1,1,6),
   dome:new T.SphereGeometry(1,10,5,0,TAU,0,PI/2),plane:new T.PlaneGeometry(1,1),beam:new T.CylinderGeometry(1,1,1,12,1,true)};return SG}
@@ -940,7 +956,7 @@ function kGate(g,st){const ws=WS[st],F=FR(g.x,g.y,g.a),gap=g.g||96,pw=g.big?90:7
   const rh=g.big?38:30,rl=g.big?16:12,ry=hb+6+ph+8;
   if(g.two){roof(F,0,ry,0,Wt+70,D+72,rh*.6,rl);const y2=ry+rh*.42,ph2=g.big?30:22,w2=Wt*.78,d2=D*.72;bx(M_.door,F,0,y2+ph2/2,0,w2,ph2,d2,w2/50,1);bx(M_.dan,F,0,y2+ph2+3,0,w2+6,7,d2+8,w2/60,1);roof(F,0,y2+ph2+6,0,w2+64,d2+62,rh*.9,rl)}
   else roof(F,0,ry,0,Wt+70,D+70,rh,rl);
-  if(g.name)plaque(g.name,F,0,hb+6+ph-8,o*(D/2+6),o>0?0:PI,g.big?70:54);
+  if(g.name){plaque(g.name,F,0,hb+6+ph-8,o*(D/2+6),o>0?0:PI,g.big?70:54);S.marks.push({x:g.x,y:g.y,name:g.name})}
   for(const s of[-1,1]){const[X,Y]=toW(F,s*(gap/2+pw*.6),o*(D/2+16));kLantern(X,Y,hb+ph-8,true)}S.mm.push({k:'g',x:g.x,y:g.y})}
 function kHall(h){const a=h.a||0,F=FR(h.x,h.y,a),w=h.w,d=h.d,p=h.plat||16,p0=h.plat2?p*.7:0,b0=p0+p,ph=h.ph||Math.min(58,34+w*.07),rh=h.rh||(d*.3+16),lift=h.lift||14;
   if(h.plat2)bx(M_.gstone,F,0,p0/2,0,w+130,p0,d+130,(w+130)/60,.3);
@@ -951,7 +967,7 @@ function kHall(h){const a=h.a||0,F=FR(h.x,h.y,a),w=h.w,d=h.d,p=h.plat||16,p0=h.p
   bx(h.open?M_.wood:M_.door,F,0,b0+(h.open?ph-4:ph/2),0,w-8,h.open?8:ph,d-8,w/40,1);bx(M_.dan,F,0,b0+ph+4,0,w+8,9,d+8,w/60,1);
   if(h.tiers===2){roof(F,0,b0+ph+8,0,w+64,d+60,rh*.55,lift);const yb=b0+ph+8+rh*.38,w2=w*.72,d2=d*.62,p2=ph*.56;bx(M_.door,F,0,yb+p2/2,0,w2,p2,d2,w2/40,1);bx(M_.dan,F,0,yb+p2+3,0,w2+6,7,d2+6,w2/60,1);roof(F,0,yb+p2+6,0,w2+60,d2+56,rh*.85,lift)}
   else roof(F,0,b0+ph+8,0,w+66,d+60,rh,lift);
-  if(h.name)plaque(h.name,F,0,b0+ph-8,d/2+5,0,Math.min(70,30+w*.12));
+  if(h.name){plaque(h.name,F,0,b0+ph-8,d/2+5,0,Math.min(70,30+w*.12));S.marks.push({x:h.x,y:h.y,name:h.name})}
   for(const s of[-1,1]){const[X,Y]=toW(F,s*(w/2+14),d/2+22);kLantern(X,Y,b0+ph-8,true)}
   const ew=w+(h.plat2?130:50),ed=d+(h.plat2?130:50);boxObs(h.x,h.y,ew,ed,a);S.mm.push({k:'r',x:h.x,y:h.y,w:ew,d:ed,a,c:'#3a2a24'})}
 function kPav(o){const F=FR(o.x,o.y,o.a||0),w=o.w,d=o.d||w,b=o.base||0,p=o.plat||14,ph=o.ph||36,rh=o.rh||(d*.32+14);let fy=b+p;
@@ -1053,8 +1069,8 @@ function buildMini(gc,ch,th){const w=320,h=Math.round(320*AH/AW),[c,g]=cvs(w,h),
   for(const m of S.mm)if(m.k==='g'){g.fillStyle='#c8243a';g.beginPath();g.arc(m.x,m.y,4/k,0,TAU);g.fill()}
   g.restore();S.mini={c,w,h}}
 function purge(){if(!renderer)return;for(const M of[mE,mS,mR,mSl,mZ,mT]){for(const[,m]of M){scene.remove(m);dispose(m)}M.clear()}for(const m of dyingM){scene.remove(m);dispose(m)}dyingM.length=0;if(pm)pm.visible=false}
-function buildStory(ch){if(!renderer)return;purge();if(S.world){scene.remove(S.world);for(const d of S.disp)d.dispose()}S.disp=[];AR.visible=false;
-  Object.assign(S,{obs:[],grid:new Map(),water:[],bridges:[],islands:[],lamps:[],fires:[],shrines:[],packs:[],clear:[],roads:ch.roads||[],mm:[]});
+function buildStory(ch){if(!renderer)return;if(S.open)owLeave();purge();if(S.world){scene.remove(S.world);for(const d of S.disp)d.dispose()}S.disp=[];AR.visible=false;
+  Object.assign(S,{obs:[],grid:new Map(),water:[],bridges:[],islands:[],lamps:[],fires:[],shrines:[],packs:[],clear:[],roads:ch.roads||[],mm:[],npcs:[],lore:[],marks:[],bark:null,rf:{},disc:0});
   srand=seeded(1013+S.ci*7919);sg();const th=THEMES[ch.theme];M_=storyMats(th);B_=new Batch();RG=new Map();const grp=S.world=new T.Group();scene.add(grp);
   // keep combat zones, shrines and ambush sites clear of houses and trees
   for(const st of ch.steps){if(st.t==='fight')S.clear.push({x:st.x,y:st.y,r:st.R+50});else if(st.t==='go')S.clear.push({x:st.x,y:st.y,r:(st.r||90)+30})}
@@ -1089,21 +1105,14 @@ function buildStory(ch){if(!renderer)return;purge();if(S.world){scene.remove(S.w
 /* ---------- story mode: runtime ---------- */
 const SPK={seol:['설 · Seol','#7a0d1c'],haerang:['해랑 · Haerang','#2f7d5b'],king:['혈왕 · The Blood King','#3a0a12'],yaksha:['야차장군 · Yaksha General','#8a3a10'],cheongun:['청운 · Monk Cheongun','#7a5a14'],
   consortR:['수귀비 · River Consort','#1f4a8c'],yi:['이 별장 · Captain Yi','#24406e'],snowy:['설야차 · Snow Yaksha','#4a6a8c'],jeong:['정 화원 · Painter Jeong','#5a3a8c'],
-  twinA:['월비 · Moon Consort','#4a5ab0'],twinB:['추장군 · Autumn General','#a0501a'],spirit:["해랑의 넋 · Haerang's Spirit",'#2f7d5b'],nar:['','']};
+  twinA:['월비 · Moon Consort','#4a5ab0'],twinB:['추장군 · Autumn General','#a0501a'],spirit:["해랑의 넋 · Haerang's Spirit",'#2f7d5b'],nar:['',''],danbi:['단비 · Danbi','#2f7d5b'],baek:['백재원 · Lord Baek','#3a3a4a'],gwak:['곽문성 · General Gwak','#8a6a1a'],yun:['윤서화 · Madam Yun','#a83a5a'],ok:['옥 대무녀 · Grand Shaman Ok','#1f6a60'],mok:['목 대장 · Captain Mok','#24406e']};
 const BOSS_SUB={boss:'Break his posture: three parries',boss2:'She blinks behind you — cut her icicles',boss3:'Dodge the leap, parry the sweeps'};
 const DAWN={hb:[.95,.74,.62],hi:.8,moon:0xffd2a0,mi:1.15,fog:0x5a4452,lamp:0xffb070,wx:0};
 function curStep(){return S.ch?S.ch.steps[S.step]:null}
-function objTarget(){const st=curStep();return st&&(st.t==='go'||st.t==='fight')?st:null}
-function storyLabel(){return S.ch?S.ch.year+' · '+S.ch.place:''}
-function objLabel(){const F=S.fight;if(F)return F.st.label+(F.st.waves.length>1?'  ·  '+(F.wi+1)+'/'+F.st.waves.length:'');const st=curStep();return st&&st.label||''}
-function storyPauseText(){return S.ch.year+' · '+S.ch.place+' — <b>'+S.ch.title+'</b><br>목표 · '+(objLabel()||'—')+'<br><span style="font-size:13px">'+(G.relics.length?'Talismans: '+G.relics.join(', '):'No talismans yet')+'</span>'}
 function nextStep(){S.step++;S.fight=null}
-function setArena(){const was=G.mode;G.mode='arena';AW=ARENA_W;AH=ARENA_H;S.fight=null;S.pack=null;S.big=false;S.mmR=null;try{$('retry').textContent='다시 · RISE AGAIN'}catch(e){}
-  if(!renderer)return;AR.visible=true;if(S.world)S.world.visible=false;if(S.barrier){S.barrier.visible=false;S.beam.visible=false}
-  for(const L of STG.lamps){if(L.userData.home)L.position.copy(L.userData.home);L.intensity=1.3;L.distance=660}if(was==='story')STG.init=false}
 function toMenu(){G.state='menu';for(const id of['pause','dead','reward','talk','chdone','elem','story'])show(id,false);S.talk=null;
   enemies=[];shots=[];rings=[];parts=[];texts=[];slashes=[];G.zones=[];G.bolts=[];G.queue=[];G.timers=[];G.banner=null;G.call=null;G.slow=0;G.stop=0;G.impact=0;
-  purge();P=null;setArena();showBest();show('menu',true)}
+  if(S.open)owLeave();purge();P=null;setArena();showBest();show('menu',true)}
 function openStory(){const L=$('chlist');L.innerHTML='';CHAPTERS.forEach((ch,i)=>{const b=document.createElement('button'),lock=i>storyMax;b.className='chap';b.disabled=lock;
     b.innerHTML='<span class="yr">'+ch.year+'</span><span class="ct"><span class="cn">'+ch.ko+' · '+ch.title+'</span><span class="cs">'+(lock?'잠김 · Finish the previous chapter to unlock':ch.place+' — '+ch.blurb)+'</span></span>';
     b.addEventListener('click',()=>{if(b.disabled)return;audioOn();pickElem(k=>startChapter(i,true,k))});L.appendChild(b)});show('menu',false);show('story',true)}
@@ -1119,72 +1128,24 @@ function startChapter(i,fresh,k){if(i<0||i>=CHAPTERS.length)return;const ch=CHAP
   Object.assign(P,{x:ch.start.x,y:ch.start.y,_wx:ch.start.x,_wy:ch.start.y,facing:-PI/2,state:'idle',vx:0,vy:0,iframes:1,hp:P.maxHp,st:P.maxSt,trail:[],combo:0});
   cam.x=P.x;cam.y=P.y;STAGES[3+i]=ch.light;STG.init=false;applyStage(3+i);$('retry').textContent='혈맥 · RISE AT THE LAST SHRINE';
   G.banner={text:ch.year+' · '+ch.ko,sub:'Chapter '+(i+1)+' — '+ch.title,t:0};G.state='play';last=performance.now();sfx(110,.6,'sawtooth',.05,-50)}
-function openTalk(lines,done){G.state='talk';S.talk={lines,i:0,n:0,full:'',done};inp.jx=inp.jy=0;showLine();show('talk',true)}
-function showLine(){const t=S.talk,l=t.lines[t.i],sp=SPK[l[0]]||[l[0],'#a8242e'],nm=$('tkN'),tt=$('tkT');nm.style.display=sp[0]?'':'none';nm.textContent=sp[0];nm.style.setProperty('--c',sp[1]);
-  tt.className='tkt'+(l[0]==='nar'?' nar':'');t.n=0;t.full=l[1];tt.textContent=''}
-function talkTick(dt){const t=S.talk;if(!t)return;if(t.n<t.full.length){t.n=Math.min(t.full.length,t.n+dt*60);$('tkT').textContent=t.full.slice(0,Math.floor(t.n))}}
-function advTalk(){const t=S.talk;if(!t||G.state!=='talk')return;if(t.n<t.full.length){t.n=t.full.length;$('tkT').textContent=t.full;return}
-  t.i++;sfx(700,.05,'triangle',.03);if(t.i<t.lines.length)return showLine();
-  show('talk',false);S.talk=null;G.state='play';for(const q of['pA','pD','pP','pR','pQ'])inp[q]=false;inp.hA=false;last=performance.now();if(t.done)t.done()}
 function startFight(st){const p=P,dx=p.x-st.x,dy=p.y-st.y,d=Math.hypot(dx,dy)||1;let cx=st.x+dx/d*(st.R+90),cy_=st.y+dy/d*(st.R+90);
   if(cx<30||cy_<30||cx>AW-30||cy_>AH-30||blocked(cx,cy_,20)||inWater(cx,cy_,10)){cx=p.x;cy_=p.y}S.ck={x:cx,y:cy_};
   S.fight={x:st.x,y:st.y,R:st.R,st,wi:-1,lock:true,gap:0};S.tier=st.r;setTier(st.r);G.queue=[];
   const b=st.waves[0].find(t=>typeof t!=='string');G.banner=b?{text:b.nm,sub:BOSS_SUB[b.t]||'',t:0}:{text:st.label,sub:'결계 · The barrier holds until the dead are gone',t:.6};
   callout(b?'결전':'결계','#ff5a70');sfx(220,.6,'sawtooth',.06,-120);noise(.4,.08,300);G.shake=8;nextWave()}
-function nextWave(){const F=S.fight;F.wi++;F.gap=0;const w=F.st.waves[F.wi];let bi=0;
-  for(const t of w){if(typeof t==='string'){G.queue.push(t);continue}const a=Math.atan2(P.y-F.y,P.x-F.x)+PI+(bi++)*1.2-(w.length>1?.6:0);let x=F.x+Math.cos(a)*F.R*.4,y=F.y+Math.sin(a)*F.R*.4;
-    if(blocked(x,y,30)||inWater(x,y,20)){x=F.x;y=F.y}const e=spawn(t.t,x,y);e.nm=t.nm;if(t.hp){e.hp*=t.hp;e.maxHp=e.hp}}
-  G.spawnT=.5;if(F.wi>0){G.banner={text:'제 '+(F.wi+1)+' 파 · Wave '+(F.wi+1),sub:F.st.label,t:.6};sfx(180,.4,'sawtooth',.05,-60)}}
-function fightTick(dt){const F=S.fight;if(G.queue.length||enemies.length){F.gap=0;return}F.gap+=dt;if(F.gap<.9)return;if(F.wi<F.st.waves.length-1)return nextWave();
-  const st=F.st;S.fight=null;callout('정화','#ffd34d');sfx(660,.5,'triangle',.07,330);heal(P.maxHp*(st.boss?.4:.15));G.score+=st.boss?400:120;
-  if(st.reward)offerCards(st.boss?'적 소멸 · The demon is unmade':'정화 · The ground is cleansed',st.boss?5:4,st.boss?3:2,st.boss?2:1,()=>{G.state='play';last=performance.now();nextStep()});else nextStep()}
 function startPack(k){S.pack=k;setTier(S.tier);G.queue=k.t.slice();G.spawnT=.3;callout('매복','#ff5a70');text(P.x,P.y-40,'매복 · AMBUSH','#ff5a70',true);sfx(200,.4,'sawtooth',.06,-80)}
 function useShrine(s){s.used=true;s.ring.visible=false;s.tal.visible=false;S.ck={x:s.x,y:s.y+30};heal(45);addBlood(25);rings.push({x:s.x,y:s.y,r:0,fx:true,t:0,max:110,col:'#ffd34d'});sfx(880,.4,'sine',.07,440);
   offerCards('서낭당 · A roadside shrine',3,1,1,()=>{G.state='play';last=performance.now()})}
-function storyTick(dt){const st=curStep(),p=P;if(!st)return;
-  if(S.pack){if(!G.queue.length&&!enemies.length){S.pack.done=true;S.pack=null;heal(12);addBlood(15);callout('정화','#ffd34d');sfx(520,.3,'triangle',.06,260)}}
-  else if(!S.fight){for(const s of S.shrines)if(!s.used&&Math.hypot(p.x-s.x,p.y-s.y)<44)return useShrine(s);for(const k of S.packs)if(!k.done&&Math.hypot(p.x-k.x,p.y-k.y)<k.R*.8){startPack(k);break}}
-  switch(st.t){
-    case'talk':if(!G.banner&&!S.pack&&!enemies.length)openTalk(st.lines,nextStep);break;
-    case'go':if(Math.hypot(p.x-st.x,p.y-st.y)<(st.r||90)){S.ck={x:p.x,y:p.y};sfx(880,.2,'triangle',.05,200);nextStep()}break;
-    case'fight':if(!S.fight){if(!S.pack&&Math.hypot(p.x-st.x,p.y-st.y)<st.R-30)startFight(st)}else fightTick(dt);break;
-    case'dawn':STAGES[3+S.ci]=DAWN;STG.init=false;applyStage(3+S.ci);callout('여명','#ffd9a0');G.slow=0;nextStep();break;
-    case'end':chapterDone();break}}
 function chapterDone(){G.state='chdone';const ch=S.ci,fin=ch===CHAPTERS.length-1,c=S.ch;storyMax=Math.max(storyMax,Math.min(CHAPTERS.length-1,ch+1));try{localStorage.setItem('hyeolwol_story',''+storyMax)}catch(e){}
   const tt=G.time-S.t0,mm=Math.floor(tt/60),ss=Math.floor(tt%60);$('cdY').textContent=c.year;$('cdT').textContent=fin?'끝 · The End':'제 '+(ch+1)+' 장 · Chapter '+(ch+1)+' complete';$('cdL').textContent=c.epi;
-  $('cdS').innerHTML='Slain <b>'+(G.kills-S.k0)+'</b> · Time <b>'+mm+':'+String(ss).padStart(2,'0')+'</b><br>Talismans carried <b>'+G.relics.length+'</b>';$('cdNext').style.display=fin?'none':'';$('cdSeal').textContent=fin?'終':'完';
+  $('cdS').innerHTML='Slain <b>'+(G.kills-S.k0)+'</b> · Time <b>'+mm+':'+String(ss).padStart(2,'0')+'</b><br>Talismans carried <b>'+G.relics.length+'</b>';$('cdNext').style.display=fin?'none':'';$('cdNext').textContent='다음 장 · NEXT CHAPTER';$('cdSeal').textContent=fin?'終':'完';
   show('chdone',true);sfx(330,.8,'triangle',.07,330)}
 function storyDie(){G.state='dead';$('dstats').innerHTML='Fell at <b>'+S.ch.place+'</b>, '+S.ch.year+'<br>Slain <b>'+(G.kills-S.k0)+'</b> this chapter';setTimeout(()=>{if(G.state==='dead')show('dead',true)},900)}
 function storyRevive(){show('dead',false);enemies=[];shots=[];rings=[];G.queue=[];G.zones=[];G.timers=[];G.slow=0;G.stop=0;G.banner=null;S.fight=null;S.pack=null;
   const c=S.ck||S.ch.start;Object.assign(P,{hp:P.maxHp,st:P.maxSt,state:'idle',t:0,iframes:1.5,vx:0,vy:0,x:c.x,y:c.y,_wx:c.x,_wy:c.y,blood:Math.max(P.blood,30),combo:0});cam.x=P.x;cam.y=P.y;
   G.state='play';last=performance.now();text(P.x,P.y-40,'혈맥 · RISEN','#ff5a70',true)}
 function miniHit(x,y){if(G.mode!=='story'||G.state!=='play')return false;if(S.big){S.big=false;return true}const r=S.mmR;if(r&&x>=r.x-6&&x<=r.x+r.w+6&&y>=r.y-6&&y<=r.y+r.h+6){S.big=true;return true}return false}
-function storyFrame(){if(!S.world)return;const t=performance.now()/1000;S.world.visible=true;
-  const best=[null,null,null,null],bd=[1e18,1e18,1e18,1e18];for(const l of S.lamps){const d=(l.x-cam.x)**2+(l.y-cam.y)**2;if(d>=bd[3])continue;let j=3;while(j>0&&bd[j-1]>d){bd[j]=bd[j-1];best[j]=best[j-1];j--}bd[j]=d;best[j]=l}
-  for(let i=0;i<STG.lamps.length;i++){const L=STG.lamps[i],l=best[i];if(!l){L.intensity=0;continue}L.position.set(l.x,l.h+12,l.y);L.distance=520;L.intensity=l.f?1.35+.25*Math.sin(t*13+i*2.1)+.1*Math.sin(t*29+i):1.1}
-  if(S.flameM){const k=.85+.15*Math.sin(t*17)+.08*Math.sin(t*31);S.flameM.color.setRGB(1,.38*k+.14,.1*k)}
-  if(G.state==='play'&&parts.length<300)for(const f of S.fires){if(Math.abs(f.x-cam.x)>760||Math.abs(f.y-cam.y)>640)continue;if(Math.random()<rfd*(f.big?5:1.4))parts.push({x:f.x+rnd(-6,6)*(f.big?4:1),y:f.y+rnd(-6,6)*(f.big?3:1),z:f.h+rnd(0,8),vz:rnd(70,170),vx:rnd(-24,24),vy:rnd(-24,24),t:0,life:rnd(.3,.7),col:Math.random()<.5?'#ffb050':'#ff5a20',size:3})}
-  const F=S.fight;S.barrier.visible=!!F;if(F){S.barrier.position.set(F.x,32,F.y);S.barrier.scale.set(F.R,64,F.R);S.barrier.material.opacity=.5+.2*Math.sin(t*4);S.barrier.material.map.offset.x=t*.04}
-  const o=objTarget();S.beam.visible=!!o&&!F&&G.state!=='talk';if(o){S.beam.position.set(o.x,350,o.y);S.beam.material.opacity=.16+.08*Math.sin(t*3)}
-  for(const s of S.shrines){if(s.used)continue;s.tal.position.y=36+Math.sin(t*2+s.x)*4;s.tal.rotation.y=t*1.5;s.ring.material.opacity=.45+.3*Math.sin(t*3+s.y)}}
 function diamond(x,y,r,col){ctx.fillStyle=col;ctx.beginPath();ctx.moveTo(x,y-r);ctx.lineTo(x+r,y);ctx.lineTo(x,y+r);ctx.lineTo(x-r,y);ctx.closePath();ctx.fill()}
-function storyHUD(){if(!S.ch)return;const p=P,lab=objLabel();
-  if(lab){ctx.font='700 12px "Gowun Batang",Georgia,serif';ctx.textAlign='left';const tw=ctx.measureText(lab).width,ox=14,oy=106;rr(ox-6,oy-15,tw+52,22,'rgba(10,8,12,.62)');ctx.fillStyle=S.fight?'#ff5a70':'#c9a35a';ctx.fillText('목표',ox,oy);ctx.fillStyle='#f0e4cc';ctx.fillText(lab,ox+36,oy)}
-  const o=objTarget();
-  if(o&&!S.fight&&G.state==='play'&&!S.big){const d=Math.hypot(o.x-p.x,o.y-p.y),[sx,sy]=proj(o.x,70,o.y),m=56,lb=Math.max(0,Math.round(d/20))+'m';ctx.font='700 11px "Gowun Batang",Georgia,serif';ctx.textAlign='center';
-    if(sx>m&&sx<W-m&&sy>m&&sy<H-m){const b=Math.sin(G.time*4)*4;ctx.strokeStyle='#0b0910';ctx.lineWidth=3;ctx.save();ctx.translate(sx,sy+b);ctx.beginPath();ctx.moveTo(0,-12);ctx.lineTo(9,0);ctx.lineTo(0,12);ctx.lineTo(-9,0);ctx.closePath();ctx.stroke();ctx.restore();diamond(sx,sy+b,11,'#ffd34d');
-      ctx.fillStyle='#000';ctx.fillText(lb,sx+1,sy+b+28);ctx.fillStyle='#ffd34d';ctx.fillText(lb,sx,sy+b+27)}
-    else{const cx=W/2,cy0=H/2,a=Math.atan2(sy-cy0,sx-cx),k=Math.min((W/2-m)/Math.max(1e-6,Math.abs(Math.cos(a))),(H/2-m)/Math.max(1e-6,Math.abs(Math.sin(a)))),ax=cx+Math.cos(a)*k,ay=cy0+Math.sin(a)*k;
-      ctx.save();ctx.translate(ax,ay);ctx.rotate(a);ctx.fillStyle='#ffd34d';ctx.strokeStyle='#0b0910';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(17,0);ctx.lineTo(-8,-12);ctx.lineTo(-3,0);ctx.lineTo(-8,12);ctx.closePath();ctx.stroke();ctx.fill();ctx.restore();
-      const tx=ax-Math.cos(a)*30,ty=ay-Math.sin(a)*30+4;ctx.fillStyle='#000';ctx.fillText(lb,tx+1,ty+1);ctx.fillStyle='#ffd34d';ctx.fillText(lb,tx,ty)}}
-  const Mi=S.mini;if(!Mi)return;const big=S.big,mw=big?Math.min(W*.92,H*.8*AW/AH):(W<600?112:170),mh=mw*AH/AW,x=big?(W-mw)/2:W-mw-14,y=big?(H-mh)/2:50,k=mw/AW;S.mmR={x,y,w:mw,h:mh};
-  if(big){ctx.fillStyle='rgba(6,4,10,.6)';ctx.fillRect(0,0,W,H)}ctx.globalAlpha=big?1:.88;ctx.drawImage(Mi.c,x,y,mw,mh);ctx.globalAlpha=1;ctx.strokeStyle='#c9a35a';ctx.lineWidth=1.5;ctx.strokeRect(x-1,y-1,mw+2,mh+2);
-  const X=v=>x+v*k,Y=v=>y+v*k;for(const s of S.shrines)if(!s.used)diamond(X(s.x),Y(s.y),big?6:3,'#7de8ff');
-  if(S.fight)ring(X(S.fight.x),Y(S.fight.y),Math.max(3,S.fight.R*k),'#ff3048',1.5,.9);for(const e of enemies)if(!e.dead)circ(X(e.x),Y(e.y),e.boss?(big?6:3.5):(big?3:1.8),'#ff3048');
-  if(o){const pr=(big?8:5)+Math.sin(G.time*5)*1.5;diamond(X(o.x),Y(o.y),pr+1.5,'#0b0910');diamond(X(o.x),Y(o.y),pr,'#ffd34d')}
-  ctx.save();ctx.translate(X(p.x),Y(p.y));ctx.rotate(p.facing);const ps=big?1.6:1;ctx.fillStyle='#fff';ctx.strokeStyle='#0b0910';ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(7*ps,0);ctx.lineTo(-4*ps,-5*ps);ctx.lineTo(-4*ps,5*ps);ctx.closePath();ctx.stroke();ctx.fill();ctx.restore();
-  if(big){ctx.textAlign='center';ctx.font='15px "Gowun Batang",Georgia,serif';ctx.fillStyle='#f0e4cc';ctx.fillText(S.ch.year+' · '+S.ch.place+' — '+S.ch.title,W/2,y-24);ctx.font='12px "Gowun Batang",Georgia,serif';ctx.fillStyle='#c9a35a';
-    ctx.fillText('◆ objective   ◇ shrine   ● foes   —   '+(touchMode?'tap':'M or click')+' to close',W/2,y+mh+22)}}
 /* ---------- story mode: chapters (Joseon, 1392–1897) ---------- */
 // Maps are in game units (player radius 13). Walls: closed loops, gates sit on wall segments.
 const CHAPTERS=[
@@ -1369,6 +1330,507 @@ const CHAPTERS=[
   {t:'end'}],
  epi:'In October 1897 the Korean Empire was proclaimed. The Joseon dynasty had lasted five hundred and five years.'}
 ];
+/* ---------- story: flags, dialogue choices, barks, NPCs, records ---------- */
+const PF='hyeolwol_flags';let PFL={};try{PFL=JSON.parse(localStorage.getItem(PF)||'{}')||{}}catch(e){PFL={}}
+let guide='light';try{guide=localStorage.getItem('hyeolwol_guide')||'light'}catch(e){}
+function pkey(k){return/^(lore_|mem)/.test(k)}
+function flag(k){if(pkey(k))return!!PFL[k];return S.open?!!OW.flags[k]:!!S.rf[k]}
+function setFlag(k){if(!k)return;if(pkey(k)){PFL[k]=1;try{localStorage.setItem(PF,JSON.stringify(PFL))}catch(e){}}else if(S.open)OW.flags[k]=1;else S.rf[k]=1}
+function cond(c){return!c||c.split('&').every(t=>t[0]==='!'?!flag(t.slice(1)):flag(t))}
+function bark(sp,txt){S.bark={sp,txt,t:0,life:2.6+txt.length/22}}
+function spk(k){if(k[0]==='#')return[k.slice(1),'#5a4630'];if(k[0]==='%')return[k.slice(1),'#7a0d1c'];if(k[0]==='@')return[k.slice(1),'#4a3a2a'];return SPK[k]||[k,'#a8242e']}
+function nameplate(sp){const nm=$('tkN');nm.style.display=sp[0]?'':'none';nm.textContent=sp[0];nm.style.setProperty('--c',sp[1])}
+function openTalk(lines,done){G.state='talk';S.talk={lines:lines.slice(),i:0,n:0,full:'',done,choice:null};inp.jx=inp.jy=0;show('talk',true);showLine()}
+function endTalk(){const t=S.talk;show('talk',false);$('tkC').innerHTML='';S.talk=null;G.state='play';for(const q of['pA','pD','pP','pR','pQ'])inp[q]=false;inp.hA=false;last=performance.now();if(t&&t.done)t.done()}
+function showLine(){const t=S.talk;if(!t)return;let l;
+  for(;;){if(t.i>=t.lines.length)return endTalk();l=t.lines[t.i];
+    if(Array.isArray(l)){if(cond(l[2]))break}
+    else if(l.choice){if(cond(l.if))break}
+    else if(cond(l.if)){if(l.set)setFlag(l.set);if(l.rep&&S.open)repAdd(l.rep[0],l.rep[1]);if(l.fn)l.fn()}
+    t.i++}
+  const tt=$('tkT'),C=$('tkC');C.innerHTML='';
+  if(l.choice){const c=l.choice;t.choice=c;nameplate(spk(c.sp||'seol'));tt.className='tkt';t.full=c.q;t.n=c.q.length;tt.textContent=c.q;
+    c.opts.filter(o=>cond(o[4])).forEach((o,k)=>{const b=document.createElement('button');b.className='tkb';b.textContent=(k+1)+'. '+o[0];b.addEventListener('pointerdown',e=>{e.stopPropagation();e.preventDefault();pickChoice(k)});C.appendChild(b)});return}
+  t.choice=null;nameplate(spk(l[0]));tt.className='tkt'+(l[0]==='nar'||'#%'.includes(l[0][0])?' nar':'')+(l[0][0]==='%'?' mem':'');t.n=0;t.full=l[1];tt.textContent=''}
+function pickChoice(k){const t=S.talk;if(!t||!t.choice)return;const o=t.choice.opts.filter(o=>cond(o[4]))[k];if(!o)return;sfx(620,.08,'triangle',.04);if(o[1])setFlag(o[1]);
+  t.lines.splice(t.i+1,0,...(o[2]||[]));t.choice=null;t.i++;if(o[3])o[3]();showLine()}
+function talkTick(dt){const t=S.talk;if(!t||t.choice)return;if(t.n<t.full.length){t.n=Math.min(t.full.length,t.n+dt*60);$('tkT').textContent=t.full.slice(0,Math.floor(t.n))}}
+function advTalk(){const t=S.talk;if(!t||G.state!=='talk'||t.choice)return;if(t.n<t.full.length){t.n=t.full.length;$('tkT').textContent=t.full;return}t.i++;sfx(700,.05,'triangle',.03);showLine()}
+const NPCK={villager:[0xe8e0cc,0xd8d0bc,'gat'],woman:[0xc88a96,0xe8dcc8,'hair'],shaman:[0xc8243a,0xf1ead6,'hair'],monk:[0x6a6a66,0x8a8a84,''],soldier:[0x1f4a8c,0x24406e,'helm'],tiger:[0x8a6a1a,0xd9a521,'helm'],
+  lady:[0x2f7d5b,0xe89ab4,'hair'],official:[0x3a2a5a,0x4a3a6a,'gat'],crane:[0xe8e2d0,0x2a2a34,'gat'],merchant:[0x6a3a4a,0xe06a8a,'gat'],child:[0xd8c8a0,0xc8b890,'hair']};
+function npcMat(c){const k='n_'+c;if(M_[k])return M_[k];const m=c==='ghost'?mat(0x9fe8c8,{transparent:true,opacity:.55}):mat(c);(M_.__d||S.disp).push(m);return M_[k]=m}
+function kNPC(n){const F=FR(n.x,n.y,n.a!==undefined?n.a:PI/2);
+  if(n.k==='board'){bx(M_.wood,F,-17,22,0,3,44,3);bx(M_.wood,F,17,22,0,3,44,3);bx(M_.lwood,F,0,32,0,42,22,3);bx(M_.plaster,F,-8,33,2,11,15,1);bx(M_.plaster,F,9,31,2,10,12,1);roof(F,0,44,0,56,18,6,3,4,2);addObs({k:'c',x:n.x,y:n.y,r:14})}
+  else{const C=NPCK[n.k]||NPCK.villager,s=n.k==='child'?.75:1,c0=n.ghost?'ghost':C[0],c1=n.ghost?'ghost':C[1];
+    B_.put(npcMat(c0),GEO.robe,F,0,13*s,0,9*s,26*s,9*s);cy(npcMat(c1),F,0,31*s,0,6*s,10*s);for(const sd of[-1,1])bx(npcMat(c1),F,1*s,28*s,sd*7*s,3*s,13*s,3*s);
+    ico(npcMat(n.ghost?'ghost':0xe8c8a8),F,0,41*s,0,5.5*s,6*s,5.5*s);
+    if(C[2]==='gat'){cy(npcMat(0x111114),F,0,45.5*s,0,11*s,1);cy(npcMat(0x111114),F,0,49*s,0,4*s,7*s)}else if(C[2]==='helm')cone(npcMat(0x4a2a1a),F,0,49*s,0,6.5*s,10*s);else if(C[2]==='hair')ico(npcMat(0x111114),F,-2*s,45*s,0,5*s,4*s,5*s);
+    addObs({k:'c',x:n.x,y:n.y,r:11})}
+  S.npcs.push(Object.assign({},n,{played:new Set()}))}
+function npcVariant(n){if(n.fn)return n.fn();for(let i=0;i<(n.v||[]).length;i++)if(cond(n.v[i].if))return{key:i,v:n.v[i]};return null}
+function npcCheck(){for(const n of S.npcs){const d=Math.hypot(P.x-n.x,P.y-n.y);if(d>150&&n.repeat)n.played.clear();if(d>58)continue;const r=npcVariant(n);if(!r||n.played.has(r.key))continue;n.played.add(r.key);talkNpc(n,r.v);return true}return false}
+function talkNpc(n,v){openTalk(v.lines,()=>{if(v.set)setFlag(v.set);if(v.then)v.then();if(v.give)offerCards(v.giveT||'선물 · A gift',3,1,1,()=>{G.state='play';last=performance.now()})})}
+function kLore(L){const col=L.kind==='mem'?0xff3048:L.kind==='item'?0xffd34d:0x9fb8ff;const F=FR(L.x,L.y,0);
+  if(L.kind==='doc'){bx(M_.dstone,F,0,8,0,12,16,10);bx(M_.lwood,F,0,17,0,18,3,8)}
+  const ring=new T.Mesh(GEO.ring,new T.MeshBasicMaterial({color:col,transparent:true,opacity:.6,blending:T.AdditiveBlending,depthWrite:false}));ring.scale.setScalar(24);ring.position.set(L.x,1.4,L.y);
+  const ic=new T.Mesh(SG.ico,new T.MeshBasicMaterial({color:col,transparent:true,opacity:.9,blending:T.AdditiveBlending,depthWrite:false}));ic.scale.setScalar(5);ic.position.set(L.x,30,L.y);
+  S.disp.push(ring.material,ic.material);S.world.add(ring,ic);const used=!!(L.once&&flag(L.once));ring.visible=ic.visible=!used;S.lore.push(Object.assign({},L,{used,ring,ic}))}
+function loreCheck(){for(const L of S.lore){if(L.used||!cond(L.need))continue;if(Math.hypot(P.x-L.x,P.y-L.y)>36)continue;L.used=true;L.ring.visible=L.ic.visible=false;
+    if(L.kind==='mem')setFlag(L.id);else if(L.kind==='doc')setFlag('lore_'+L.id);if(L.set)setFlag(L.set);sfx(760,.25,'sine',.05,200);
+    const lines=L.kind==='item'?L.lines:L.lines.map(s=>[(L.kind==='mem'?'%':'#')+L.t,s]);openTalk(lines,()=>{if(L.then)L.then()});return true}return false}
+function marksCheck(){for(const m of S.marks){if(m.found||Math.hypot(P.x-m.x,P.y-m.y)>320)continue;m.found=true;S.disc=(S.disc||0)+1;text(P.x,P.y-58,'발견 · '+m.name,'#ffd34d',true);sfx(980,.3,'sine',.04,-300);return}}
+function hintOf(t){if(t.hx===undefined){t.hr=t.hr||(t.t==='go'||t.t==='talk'?240:380);const a=((t.x*13.7+t.y*7.3)%6.283),o=t.hr*.42;t.hx=t.x+Math.cos(a)*o;t.hy=t.y+Math.sin(a)*o}return t}
+function drawBark(){const b=S.bark;if(!b)return;const k=b.t/b.life;if(k>=1){S.bark=null;return}const a=k<.08?k/.08:k>.85?(1-k)/.15:1,sp=spk(b.sp),mw=Math.min(W-40,620),y=H-(touchMode?280:96);
+  ctx.save();ctx.globalAlpha=a;ctx.font='15px "Gowun Batang",Georgia,serif';const words=b.txt.split(' '),ln=[''];for(const w of words){const tr=(ln[ln.length-1]+' '+w).trim();if(ctx.measureText(tr).width>mw-24&&ln[ln.length-1])ln.push(w);else ln[ln.length-1]=tr}
+  const h=22+ln.length*20;rr(W/2-mw/2,y-h,mw,h+8,'rgba(10,8,12,.72)');ctx.fillStyle=sp[1]==='#5a4630'?'#c9a35a':sp[1];ctx.fillRect(W/2-mw/2,y-h,3,h+8);
+  ctx.textAlign='left';if(sp[0]){ctx.font='13px "Nanum Brush Script","Gowun Batang",serif';ctx.fillStyle='#e9c66a';ctx.font='700 12px "Gowun Batang",Georgia,serif';ctx.fillText(sp[0],W/2-mw/2+14,y-h+16)}
+  ctx.font='15px "Gowun Batang",Georgia,serif';ctx.fillStyle='#f0e4cc';ln.forEach((s,i)=>ctx.fillText(s,W/2-mw/2+14,y-h+(sp[0]?36:20)+i*20));ctx.restore()}
+function drawNpcMarks(){for(const n of S.npcs){const dx=n.x-P.x,dy=n.y-P.y;if(dx*dx+dy*dy>640000)continue;const r=npcVariant(n);if(!r||n.played.has(r.key))continue;
+  const[x,y]=proj(n.x,n.k==='board'?58:66,n.y),b=Math.sin(G.time*3+n.x)*2,ch=n.k==='board'?'榜':r.v.q?'!':'…';ctx.fillStyle='rgba(10,8,12,.75)';ctx.beginPath();ctx.arc(x,y+b,11,0,TAU);ctx.fill();
+  ctx.strokeStyle=r.v.q||n.k==='board'?'#ffd34d':'#c9a35a';ctx.lineWidth=1.5;ctx.stroke();ctx.textAlign='center';ctx.font='700 13px "Gowun Batang",Georgia,serif';ctx.fillStyle=r.v.q||n.k==='board'?'#ffd34d':'#f0e4cc';ctx.fillText(ch,x,y+b+4.5)}}
+function objTarget(){if(S.open)return owTarget();const st=curStep();return st&&(st.t==='go'||st.t==='fight')?st:null}
+function storyLabel(){if(S.open){const d=OW.cur;return d?d.name.ko+' · '+d.name.en:'열린 조선'}return S.ch?S.ch.year+' · '+S.ch.place:''}
+function objLabel(){const F=S.fight;if(F)return F.st.label+(F.st.waves.length>1?'  ·  '+(F.wi+1)+'/'+F.st.waves.length:'');
+  if(S.open){const q=owTracked();if(!q)return'';const s=qStage(q);return q.title+(s&&s.label?' — '+s.label:'')}const st=curStep();return st&&st.label||''}
+function storyPauseText(){$('pGuide').textContent='길잡이 · Guidance: '+(guide==='full'?'Full (arrow and beam)':'Light (search area only)');if(S.open)return owJournal();
+  return S.ch.year+' · '+S.ch.place+' — <b>'+S.ch.title+'</b><br>목표 · '+(objLabel()||'—')+'<br><span style="font-size:13px">'+(G.relics.length?'Talismans: '+G.relics.join(', '):'No talismans yet')+'</span>'}
+function setArena(){if(S.open)owLeave();const was=G.mode;G.mode='arena';AW=ARENA_W;AH=ARENA_H;S.fight=null;S.pack=null;S.big=false;S.mmR=null;S.bark=null;try{$('retry').textContent='다시 · RISE AGAIN'}catch(e){}
+  if(!renderer)return;AR.visible=true;if(S.world)S.world.visible=false;if(S.barrier){S.barrier.visible=false;S.beam.visible=false}
+  for(const L of STG.lamps){if(L.userData.home)L.position.copy(L.userData.home);L.intensity=1.3;L.distance=660}if(was==='story')STG.init=false}
+function nextWave(){const F=S.fight;F.wi++;F.gap=0;const w=F.st.waves[F.wi];let bi=0;
+  for(const t of w){if(typeof t==='string'){G.queue.push(t);continue}const a=Math.atan2(P.y-F.y,P.x-F.x)+PI+(bi++)*1.2-(w.length>1?.6:0);let x=F.x+Math.cos(a)*F.R*.4,y=F.y+Math.sin(a)*F.R*.4;
+    if(blocked(x,y,30)||inWater(x,y,20)){x=F.x;y=F.y}const e=spawn(t.t,x,y);e.nm=t.nm;if(t.hp){e.hp*=t.hp;e.maxHp=e.hp}}
+  G.spawnT=.5;if(F.wi>0){G.banner={text:'제 '+(F.wi+1)+' 파 · Wave '+(F.wi+1),sub:F.st.label,t:.6};sfx(180,.4,'sawtooth',.05,-60)}
+  for(const b of F.st.barks||[])if(b[0]===F.wi)bark(b[1],b[2])}
+function fightTick(dt){const F=S.fight,st=F.st;
+  if(st.taunts){const bs=enemies.filter(e=>e.boss&&!e.dead&&e.spawn<=0);if(bs.length){const r=Math.min(...bs.map(e=>e.hp/e.maxHp));F.tf=F.tf||0;if(F.tf<st.taunts.length&&r<st.taunts[F.tf][0]){const q=st.taunts[F.tf++];bark(q[1],q[2])}}}
+  if(G.queue.length||enemies.length){F.gap=0;return}F.gap+=dt;if(F.gap<.9)return;if(F.wi<st.waves.length-1)return nextWave();
+  S.fight=null;callout('정화','#ffd34d');sfx(660,.5,'triangle',.07,330);heal(P.maxHp*(st.boss?.4:.15));G.score+=st.boss?400:120;
+  const fin=()=>{G.state='play';last=performance.now();if(st.onDone)st.onDone();else nextStep()};
+  if(st.reward)offerCards(st.boss?'적 소멸 · The demon is unmade':'정화 · The ground is cleansed',st.boss?5:4,st.boss?3:2,st.boss?2:1,fin);else fin()}
+function storyTick(dt){if(S.open)return owTick(dt);const st=curStep(),p=P;if(!st)return;
+  if(S.pack){if(!G.queue.length&&!enemies.length){S.pack.done=true;S.pack=null;heal(12);addBlood(15);callout('정화','#ffd34d');sfx(520,.3,'triangle',.06,260)}}
+  else if(!S.fight){for(const s of S.shrines)if(!s.used&&Math.hypot(p.x-s.x,p.y-s.y)<44)return useShrine(s);if(loreCheck()||npcCheck())return;marksCheck();
+    for(const k of S.packs)if(!k.done&&Math.hypot(p.x-k.x,p.y-k.y)<k.R*.8){startPack(k);break}}
+  switch(st.t){
+    case'talk':if(!G.banner&&!S.pack&&!enemies.length)openTalk(st.lines,nextStep);break;
+    case'bark':bark(st.sp,st.text);nextStep();break;
+    case'go':if(Math.hypot(p.x-st.x,p.y-st.y)<(st.r||90)){S.ck={x:p.x,y:p.y};sfx(880,.2,'triangle',.05,200);nextStep()}break;
+    case'fight':if(!S.fight){if(!S.pack&&Math.hypot(p.x-st.x,p.y-st.y)<st.R-30)startFight(st)}else fightTick(dt);break;
+    case'dawn':STAGES[3+S.ci]=DAWN;STG.init=false;applyStage(3+S.ci);callout('여명','#ffd9a0');G.slow=0;nextStep();break;
+    case'end':chapterDone();break}}
+function storyFrame(){if(!S.world)return;const t=performance.now()/1000;S.world.visible=true;
+  const best=[null,null,null,null],bd=[1e18,1e18,1e18,1e18];for(const l of S.lamps){const d=(l.x-cam.x)**2+(l.y-cam.y)**2;if(d>=bd[3])continue;let j=3;while(j>0&&bd[j-1]>d){bd[j]=bd[j-1];best[j]=best[j-1];j--}bd[j]=d;best[j]=l}
+  for(let i=0;i<STG.lamps.length;i++){const L=STG.lamps[i],l=best[i];if(!l){L.intensity=0;continue}L.position.set(l.x,l.h+12,l.y);L.distance=520;L.intensity=l.f?1.35+.25*Math.sin(t*13+i*2.1)+.1*Math.sin(t*29+i):1.1}
+  if(S.flameM){const k=.85+.15*Math.sin(t*17)+.08*Math.sin(t*31);S.flameM.color.setRGB(1,.38*k+.14,.1*k);for(const m in OW.mats){const f=OW.mats[m].flame;if(f!==S.flameM)f.color.copy(S.flameM.color)}}
+  if(G.state==='play'&&parts.length<300)for(const f of S.fires){if(Math.abs(f.x-cam.x)>760||Math.abs(f.y-cam.y)>640)continue;if(Math.random()<rfd*(f.big?5:1.4))parts.push({x:f.x+rnd(-6,6)*(f.big?4:1),y:f.y+rnd(-6,6)*(f.big?3:1),z:f.h+rnd(0,8),vz:rnd(70,170),vx:rnd(-24,24),vy:rnd(-24,24),t:0,life:rnd(.3,.7),col:Math.random()<.5?'#ffb050':'#ff5a20',size:3})}
+  const F=S.fight;S.barrier.visible=!!F;if(F){S.barrier.position.set(F.x,32,F.y);S.barrier.scale.set(F.R,64,F.R);S.barrier.material.opacity=.5+.2*Math.sin(t*4);S.barrier.material.map.offset.x=t*.04}
+  const o=objTarget();S.beam.visible=guide==='full'&&!!o&&!F&&G.state!=='talk';if(o&&S.beam.visible){S.beam.position.set(o.x,350,o.y);S.beam.material.opacity=.16+.08*Math.sin(t*3)}
+  for(const s of S.shrines){if(s.used)continue;s.tal.position.y=36+Math.sin(t*2+s.x)*4;s.tal.rotation.y=t*1.5;s.ring.material.opacity=.45+.3*Math.sin(t*3+s.y)}
+  for(const L of S.lore){if(L.used)continue;const v=cond(L.need);L.ring.visible=L.ic.visible=v;if(v){L.ic.position.y=30+Math.sin(t*2.4+L.x)*4;L.ic.rotation.y=t*2;L.ring.material.opacity=.4+.3*Math.sin(t*3+L.y)}}
+  if(S.bark)S.bark.t+=rfd}
+function screenArrow(o,lb){const p=P,[sx,sy]=proj(o.x,70,o.y),m=56;ctx.font='700 11px "Gowun Batang",Georgia,serif';ctx.textAlign='center';
+  if(sx>m&&sx<W-m&&sy>m&&sy<H-m){const b=Math.sin(G.time*4)*4;ctx.strokeStyle='#0b0910';ctx.lineWidth=3;ctx.save();ctx.translate(sx,sy+b);ctx.beginPath();ctx.moveTo(0,-12);ctx.lineTo(9,0);ctx.lineTo(0,12);ctx.lineTo(-9,0);ctx.closePath();ctx.stroke();ctx.restore();diamond(sx,sy+b,11,'#ffd34d');
+    ctx.fillStyle='#000';ctx.fillText(lb,sx+1,sy+b+28);ctx.fillStyle='#ffd34d';ctx.fillText(lb,sx,sy+b+27)}
+  else{const cx=W/2,cy0=H/2,a=Math.atan2(sy-cy0,sx-cx),k=Math.min((W/2-m)/Math.max(1e-6,Math.abs(Math.cos(a))),(H/2-m)/Math.max(1e-6,Math.abs(Math.sin(a)))),ax=cx+Math.cos(a)*k,ay=cy0+Math.sin(a)*k;
+    ctx.save();ctx.translate(ax,ay);ctx.rotate(a);ctx.fillStyle='#ffd34d';ctx.strokeStyle='#0b0910';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(17,0);ctx.lineTo(-8,-12);ctx.lineTo(-3,0);ctx.lineTo(-8,12);ctx.closePath();ctx.stroke();ctx.fill();ctx.restore();
+    const tx=ax-Math.cos(a)*30,ty=ay-Math.sin(a)*30+4;ctx.fillStyle='#000';ctx.fillText(lb,tx+1,ty+1);ctx.fillStyle='#ffd34d';ctx.fillText(lb,tx,ty)}}
+function objBox(lab,extra){ctx.font='700 12px "Gowun Batang",Georgia,serif';ctx.textAlign='left';const ox=14,oy=106,lines=[lab].concat(extra||[]);let tw=0;for(const s of lines)tw=Math.max(tw,ctx.measureText(s).width);tw=Math.min(tw,W*.62);
+  rr(ox-6,oy-15,tw+52,8+lines.length*18,'rgba(10,8,12,.62)');ctx.fillStyle=S.fight?'#ff5a70':'#c9a35a';ctx.fillText('목표',ox,oy);
+  lines.forEach((s,i)=>{ctx.font=(i?'':'700 ')+(i?'11px':'12px')+' "Gowun Batang",Georgia,serif';ctx.fillStyle=i?'#c9bfa8':'#f0e4cc';ctx.fillText(s,ox+36,oy+i*18,W*.62)})}
+function storyHUD(){if(!S.ch)return;if(S.open){owHUD();drawNpcMarks();drawBark();return}const p=P,lab=objLabel();if(lab)objBox(lab);
+  const o=objTarget();if(o&&!S.fight&&G.state==='play'&&!S.big&&guide==='full')screenArrow(o,Math.max(0,Math.round(Math.hypot(o.x-p.x,o.y-p.y)/20))+'m');
+  drawNpcMarks();
+  const Mi=S.mini;if(Mi){const big=S.big,mw=big?Math.min(W*.92,H*.8*AW/AH):(W<600?112:170),mh=mw*AH/AW,x=big?(W-mw)/2:W-mw-14,y=big?(H-mh)/2:50,k=mw/AW;S.mmR={x,y,w:mw,h:mh};
+    if(big){ctx.fillStyle='rgba(6,4,10,.6)';ctx.fillRect(0,0,W,H)}ctx.globalAlpha=big?1:.88;ctx.drawImage(Mi.c,x,y,mw,mh);ctx.globalAlpha=1;ctx.strokeStyle='#c9a35a';ctx.lineWidth=1.5;ctx.strokeRect(x-1,y-1,mw+2,mh+2);
+    const X=v=>x+v*k,Y=v=>y+v*k;for(const s of S.shrines)if(!s.used)diamond(X(s.x),Y(s.y),big?6:3,'#7de8ff');for(const L of S.lore)if(!L.used&&cond(L.need))diamond(X(L.x),Y(L.y),big?5:2.5,L.kind==='mem'?'#ff3048':'#9fb8ff');
+    if(S.fight)ring(X(S.fight.x),Y(S.fight.y),Math.max(3,S.fight.R*k),'#ff3048',1.5,.9);for(const e of enemies)if(!e.dead)circ(X(e.x),Y(e.y),e.boss?(big?6:3.5):(big?3:1.8),'#ff3048');
+    if(o&&!S.fight){if(guide==='full'){const pr=(big?8:5)+Math.sin(G.time*5)*1.5;diamond(X(o.x),Y(o.y),pr+1.5,'#0b0910');diamond(X(o.x),Y(o.y),pr,'#ffd34d')}
+      else{hintOf(o);ctx.setLineDash([4,3]);ring(X(o.hx),Y(o.hy),Math.max(5,o.hr*k),'#ffd34d',1.5,.85);ctx.setLineDash([])}}
+    ctx.save();ctx.translate(X(p.x),Y(p.y));ctx.rotate(p.facing);const ps=big?1.6:1;ctx.fillStyle='#fff';ctx.strokeStyle='#0b0910';ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(7*ps,0);ctx.lineTo(-4*ps,-5*ps);ctx.lineTo(-4*ps,5*ps);ctx.closePath();ctx.stroke();ctx.fill();ctx.restore();
+    if(big){ctx.textAlign='center';ctx.font='15px "Gowun Batang",Georgia,serif';ctx.fillStyle='#f0e4cc';ctx.fillText(S.ch.year+' · '+S.ch.place+' — '+S.ch.title,W/2,y-24);ctx.font='12px "Gowun Batang",Georgia,serif';ctx.fillStyle='#c9a35a';
+      ctx.fillText((guide==='full'?'◆ objective':'◌ search area')+'   ◇ shrine   ● foes   —   '+(touchMode?'tap':'M or click')+' to close',W/2,y+mh+22)}}
+  drawBark()}
+/* ---------- open world: 열린 조선 (streamed chunks, clans, quests) ---------- */
+// The world is WCH×WCH chunks of CS units. Chunk (0,0) is centred on (OWX,OWX); chunk edges sit on the 200-unit obstacle grid.
+const CS=1400,WCH=200,OWX=WCH*CS/2+100,OWSAVE='hyeolwol_open';
+const OW={seed:1624,ch:new Map(),desc:new Map(),explored:new Set(),rep:{crane:0,tiger:0,plum:0,bell:0},quests:[],track:null,cleared:new Set(),flags:{},mats:{},mdisp:[],cur:null,
+  saveT:0,theme:null,ended:false,root:null,nests:[],hostile:new Set(),talked:new Set(),seen:new Set()};
+const CLANS={crane:{ko:'학가',en:'House of the Crane',col:'#efe8d4',seat:[-5,0]},tiger:{ko:'범가',en:'House of the Tiger',col:'#d9a521',seat:[0,-5]},plum:{ko:'매화가',en:'House of the Plum',col:'#e46a8c',seat:[1,5]},
+  bell:{ko:'방울회',en:'Circle of Bells',col:'#4ab8a8',seat:[5,0]},crown:{ko:'왕실',en:'The Crown',col:'#c8243a'}};
+const OWL={spring:{hb:[.46,.5,.78],hi:.46,moon:0xc8d4ff,mi:1,fog:0x0b0d1c,lamp:0xffa058,wx:0},snow:{hb:[.55,.68,.95],hi:.5,moon:0xd6e2ff,mi:.95,fog:0x1a2436,lamp:0xffc890,wx:1},
+  autumn:{hb:[.5,.48,.7],hi:.46,moon:0xffe0b0,mi:1.05,fog:0x14101e,lamp:0xffb060,wx:4,wxc:0xe0802a,wxd:1},palace:{hb:[.62,.24,.3],hi:.46,moon:0xff9a9a,mi:.85,fog:0x1a0609,lamp:0xff4a3a,wx:2}};
+const OWST={spring:8,snow:9,autumn:10,palace:11};
+const FIXED={'0,0':{site:'capital',name:{ko:'한양',en:'Hanyang, the capital'}},'0,1':{site:'village',start:1,name:{ko:'남문밖리',en:'Nammunbak-ri'}},
+  '0,-5':{site:'seat',clan:'tiger',name:{ko:'범바위성',en:'Beombawi Fortress'}},'1,5':{site:'seat',clan:'plum',name:{ko:'매화포',en:'Maehwa Port'}},
+  '5,0':{site:'seat',clan:'bell',name:{ko:'방울사',en:'Temple of Bells'}},'-5,0':{site:'seat',clan:'crane',name:{ko:'학림원',en:'Crane Grove Manor'}},
+  '0,-3':{site:'camp',name:{ko:'북쪽 진영',en:'The Northern Camp'}},'0,-2':{site:'wild',clearHub:420},'-7,-7':{site:'lair',name:{ko:'옛 개경 터',en:'Ruins of Old Gaegyeong'}}};
+const SYL=[['청','cheong'],['송','song'],['대','dae'],['화','hwa'],['산','san'],['평','pyeong'],['안','an'],['남','nam'],['북','buk'],['동','dong'],['서','seo'],['하','ha'],['양','yang'],['원','won'],['천','cheon'],['금','geum'],
+  ['백','baek'],['수','su'],['영','yeong'],['월','wol'],['운','un'],['봉','bong'],['계','gye'],['문','mun'],['장','jang'],['용','yong'],['석','seok'],['진','jin'],['태','tae'],['광','gwang'],['매','mae'],['솔','sol'],['감','gam'],['도','do'],['마','ma'],['옥','ok']];
+const SUF={village:['리','-ri'],town:['읍','-eup'],temple:['사','sa Temple'],nest:['골','-gol Hollow'],ruins:['옛터','Ruins'],lake:['지','-ji Pond'],forest:['숲',' Woods'],fields:['들','-deul Fields'],hills:['재','-jae Pass']};
+function hs(a,b,c){let h=(Math.imul(a|0,374761393)+Math.imul(b|0,668265263)+Math.imul(c|0,1442695041)+OW.seed*97)|0;h=Math.imul(h^(h>>>13),1274126177);h^=h>>>16;return(h>>>0)/4294967296}
+function cCenter(cx,cy){return[OWX+cx*CS,OWX+cy*CS]}
+function chunkOf(x,y){return[Math.floor((x-OWX+CS/2)/CS),Math.floor((y-OWX+CS/2)/CS)]}
+function at(cx,cy,dx,dy){const[x,y]=cCenter(cx,cy);return{x:x+(dx||0),y:y+(dy||0)}}
+function eRoad(cx,cy,dir){if(dir===0){if(cy===0)return .5;return hs(cx*2+1,cy*2,11)<.45?.3+.4*hs(cx,cy,12):null}if(cx===0)return .5;return hs(cx*2,cy*2+1,13)<.45?.3+.4*hs(cx,cy,14):null}
+function placeName(cx,cy,site,biome){const a=SYL[(hs(cx,cy,21)*SYL.length)|0],b=SYL[(hs(cx,cy,22)*SYL.length)|0],s=SUF[site==='wild'?biome:site]||SUF.fields,r=a[1][0].toUpperCase()+a[1].slice(1)+b[1];
+  return{ko:a[0]+b[0]+s[0],en:s[1]==='Ruins'?'Old '+r+' Ruins':r+s[1]}}
+function clanAt(cx,cy){if(Math.abs(cx)<=1&&Math.abs(cy)<=1)return'crown';return Math.abs(cy)>=Math.abs(cx)?(cy<0?'tiger':'plum'):(cx>0?'bell':'crane')}
+function descOf(cx,cy){const k=cx+','+cy;let d=OW.desc.get(k);if(d)return d;const fx=FIXED[k],h=hs(cx,cy,1),dist=Math.hypot(cx,cy),[X,Y]=cCenter(cx,cy),x0=X-CS/2,y0=Y-CS/2,rd=[];
+  const e=eRoad(cx,cy,0),w=eRoad(cx-1,cy,0),s=eRoad(cx,cy,1),n=eRoad(cx,cy-1,1);if(e!==null)rd.push([x0+CS,y0+e*CS]);if(w!==null)rd.push([x0,y0+w*CS]);if(s!==null)rd.push([x0+s*CS,y0+CS]);if(n!==null)rd.push([x0+n*CS,y0]);
+  let site;if(fx&&fx.site)site=fx.site;else if(dist<1.5)site='village';else if(h<.13)site='village';else if(h<.2&&rd.length>=2)site='town';else if(h<.26)site='temple';else if(h<.36)site='nest';else if(h<.42)site='ruins';else if(h<.46)site='lake';else site='wild';
+  const bio=hs(Math.floor(cx/3),Math.floor(cy/3),2),biome=bio<.4?'forest':bio<.75?'fields':'hills',jit=fx||cx===0||cy===0?0:1;
+  d={k,cx,cy,site,biome,x0,y0,X,Y,clan:(fx&&fx.clan)||clanAt(cx,cy),theme:site==='lair'?'palace':cy<=-6?'snow':cy>=6?'autumn':'spring',tier:Math.min(26,2+Math.floor(dist*1.25)),
+    hx:X+jit*(hs(cx,cy,3)-.5)*320,hy:Y+jit*(hs(cx,cy,4)-.5)*320,edges:rd,start:fx&&fx.start,clearHub:fx&&fx.clearHub||0,name:fx&&fx.name||placeName(cx,cy,site,biome)};
+  d.roads=rd.map(p=>({pts:[p,[d.hx,d.hy]],w:(cx===0&&Math.abs(p[0]-X)<1)||(cy===0&&Math.abs(p[1]-Y)<1)?90:66}));
+  OW.desc.set(k,d);return d}
+function owMats(theme){if(OW.mats[theme])return OW.mats[theme];const sv=S.disp;S.disp=OW.mdisp;const m=storyMats(THEMES[theme]);S.disp=sv;m.__d=OW.mdisp;return OW.mats[theme]=m}
+function packTypes(tier,n){const pool=['gangshi','gangshi','bat'];if(tier>=3)pool.push('mudang','guard');if(tier>=4)pool.push('archer','yangban');if(tier>=6)pool.push('gwishin','wisp');if(tier>=8)pool.push('brute');
+  const o=[];for(let i=0;i<n;i++)o.push(pool[(srand()*pool.length)|0]);return o}
+function waveSet(tier,big){const n=3+Math.min(4,tier>>2)+(big?1:0);const w=[packTypes(tier,n),packTypes(tier,n+1)];if(tier>=7)w[1].push('brute');return w}
+const RUMORS={any:['The dead walk the roads after moonrise. Stay near the lanterns.','A roadside shrine lit itself last night. Nobody here lit it.','My grandmother says the shrines are older than the kingdom.',
+    'Tax collectors came twice this year. The second ones had no shadows.','Since last year\'s coup, every House is buying swords. Nobody says who for.','If you\'re crossing the hills, go before dark. The passes eat travellers.',
+    'Check the notice board. The Houses pay for every nest you burn.','Someone put out the shrine on the west road. Put it out on purpose, with water.'],
+  crane:['The Crane lords write the laws. Funny how the laws always fit them.','Lord Baek\'s men pay in silver. New silver, very clean.','The lamps at Crane Grove Manor burn all night. Who reads that much?'],
+  tiger:['General Gwak opened the capital gates for the new king. The court thanked him with a frozen border.','The Tiger garrison hasn\'t been paid since spring. They get paid in promises.','Captain Mok used to send money home every month. Lately, nothing.'],
+  plum:['The Plum ships salt, silk and rice. Lately also crates that slosh.','Madam Yun has lost three warehouses this season. Bad luck, she says. I say bad friends.','Her steward Hwang bought a house in the capital. On a steward\'s wage.'],
+  bell:['The bell shamans keep the shrines lit. They say a woman called Haerang taught them how.','When the temple bells ring with no hand on the rope, the dead are near.','Grand Shaman Ok doesn\'t sleep. She listens.'],
+  crown:['The new king is careful. He remembers how he got his throne.','In the capital everyone is loyal. Loudly.','The Border Defense Council meets every night now. Lord Baek chairs it.']};
+const VNAMES=['@김 서방 · Mr. Kim','@박 씨 부인 · Mrs. Park','@나무꾼 · Woodcutter','@주막 주인 · Innkeeper','@뱃사공 · Ferryman','@대장장이 · Blacksmith','@사냥꾼 · Hunter','@약초꾼 · Herbalist','@소금 장수 · Salt Peddler','@서당 훈장 · Village Teacher'];
+const LOREPOOL=[['부서진 비석 · A Broken Stele',['Raised in the reign of … to honor the loyal servants of …','The rest is worn away by rain and three hundred winters.']],
+  ['도망 노비의 쪽지 · A Runaway\'s Note',['If you find this, I went north. Don\'t follow.','Tell my mother the rice jar is behind the stove, and I am sorry about the jar.']],
+  ['관아 문서 · A Magistrate\'s Record',['Tax arrears: eleven households. Reason given: "the dead took the harvest."','Magistrate\'s note: unacceptable excuse. Collect anyway.']],
+  ['혈궁 명령서 · A Blood Court Order',['The shrine at the crossroads is to be put out before the new moon.','Payment as agreed, through the usual minister. Burn this.']],
+  ['승려의 기도문 · A Monk\'s Prayer',['Let the lamps not go out. Let the roads not empty.','Let whoever walks them tonight walk them home.']],
+  ['병사의 편지 · A Soldier\'s Letter',['Mother, the general says the court will pay us after the harvest. He said that last harvest too.','I am well. The cold is bad, but the dead are worse, and we have beaten the dead three times.']]];
+function rumorNpc(d,x,y,i){const nm=VNAMES[(srand()*VNAMES.length)|0],pool=RUMORS[d.clan]||RUMORS.any,a=pool[(srand()*pool.length)|0],b=RUMORS.any[(srand()*RUMORS.any.length)|0];
+  return{x,y,k:nm.includes('부인')?'woman':spick(['villager','villager','merchant','child']),v:[
+    {if:'m_end',lines:[[nm,'The red moon is gone. People are sleeping with their doors open again.']]},
+    {if:'m3_gwak&!m_end',lines:[[nm,'They say General Gwak marched south with the whole northern garrison. Some say for the king, some say against.'],[nm,a]]},
+    {lines:[[nm,a],[nm,b]]}]}}
+function boardNpc(d,x,y){return{x,y,k:'board',repeat:true,fn:()=>{const offers=genBounties(d);return{key:'b'+offers.length+'_'+OW.quests.filter(q=>!q.done).length,v:{lines:[{choice:{sp:'#방 · Notice Board',
+  q:CLANS[d.clan].ko+' · '+CLANS[d.clan].en+' — '+(offers.length?'Bounties posted here:':'Nothing new is posted. Come back later.'),
+  opts:offers.map(o=>['Take: '+o.title,'',[['#방 · Notice Board',o.desc]],()=>addQuest(o)]).concat([['Leave the board.','',[]]])}}]}}}}}
+function dirName(dx,dy){const a=Math.atan2(dy,dx),i=Math.round(a/(PI/4));return['east','south-east','south','south-west','west','north-west','north','north-east','east'][(i+8)%8]}
+function genBounties(d){const out=[],cand=[];for(let r=1;r<=4;r++)for(let dx=-r;dx<=r;dx++)for(let dy=-r;dy<=r;dy++){if(Math.max(Math.abs(dx),Math.abs(dy))!==r)continue;cand.push(descOf(d.cx+dx,d.cy+dy))}
+  cand.sort((a,b)=>hs(a.cx,a.cy,77)-hs(b.cx,b.cy,77));
+  for(const e of cand){if(out.length>=3)break;const dist=Math.hypot(e.X-d.X,e.Y-d.Y),li=Math.max(1,Math.round(dist/1000)),dir=dirName(e.X-d.X,e.Y-d.Y);let q=null;
+    if(e.site==='nest'){const id='nest:'+e.k;if(OW.cleared.has(e.k)||OW.quests.some(o=>o.id===id))continue;q={id,title:'Burn the nest at '+e.name.en,desc:'The dead are breeding in '+e.name.ko+' · '+e.name.en+', about '+li+' li '+dir+'. Burn it out. The '+CLANS[d.clan].en+' will remember it.',
+      stages:[{t:'nest',key:e.k,x:e.hx,y:e.hy,label:'Find the nest '+dir+' of '+d.name.en,hr:520}]}}
+    else if(e.site==='wild'||e.site==='ruins'){const id='hunt:'+e.k;if(OW.quests.some(o=>o.id===id))continue;const el=spick2(e,['brute','yangban','gwishin','guard']),nm=spick2(e,['외눈 · One-Eye','붉은 손 · Red Hand','늙은 늑대 · The Old Wolf','검은 갓 · Black Gat','울음꾼 · The Weeper','무덤지기 · Gravekeeper']);
+      q={id,title:'Hunt '+nm.split(' · ')[1]+' near '+e.name.en,desc:'A dead thing they call '+nm+' stalks the roads around '+e.name.ko+' · '+e.name.en+', about '+li+' li '+dir+'. Travellers have stopped coming back.',
+      stages:[{t:'fight',x:e.hx+40,y:e.hy+40,R:240,r:e.tier,label:'Track '+nm.split(' · ')[1]+' '+dir+' of '+d.name.en,hr:480,waves:[[{t:el,nm,hp:2.6},...packTypes2(e,e.tier,3)]],barks:[[0,'seol','There it is. '+nm.split(' · ')[1]+'.']]}]}}
+    else continue;
+    q.clan=d.clan;q.giver=d.name.en;q.reward={rep:{[d.clan]:d.clan==='crown'?0:10},picks:2};out.push(q)}return out}
+function spick2(e,a){return a[(hs(e.cx,e.cy,55)*a.length)|0]}
+function packTypes2(e,tier,n){const sv=srand;srand=seeded(e.cx*31+e.cy*17);const o=packTypes(tier,n);srand=sv;return o}
+function repAdd(c,n){if(!OW.rep.hasOwnProperty(c)||!n)return;OW.rep[c]=clamp(OW.rep[c]+n,-100,100);text(P.x,P.y-70,(n>0?'+':'')+n+' '+CLANS[c].ko+' · '+CLANS[c].en,n>0?'#9fe8c8':'#ff6a6a',true)}
+function repWord(v){return v<=-40?'Hostile':v<0?'Wary':v<40?'Neutral':v<70?'Friendly':'Sworn'}
+/* ---------- open world: chunk builder and places ---------- */
+function owFree(x,y,rad,d){if(x<d.x0+70+rad||y<d.y0+70+rad||x>d.x0+CS-70-rad||y>d.y0+CS-70-rad)return false;return freeSpot(x,y,rad)}
+function owHouses(d,cx,cy,rad,n,kinds,burn){let k=0;for(let i=0;i<n*12&&k<n;i++){const a=srand()*TAU,r=Math.sqrt(srand())*rad,x=cx+Math.cos(a)*r,y=cy+Math.sin(a)*r;let w=sr(64,112),dd=sr(52,82);const kind=spick(kinds);
+  if(kind==='choga'){w*=.85;dd*=.85}const rot=srand()<.5?0:PI/2;if(!owFree(x,y,Math.hypot(w,dd)/2+10,d))continue;kHouse(x,y,w,dd,kind,rot,srand()<(burn||0));k++}}
+function owTrees(d,n,kinds,avoid){let k=0;for(let i=0;i<n*5&&k<n;i++){const x=d.x0+sr(90,CS-90),y=d.y0+sr(90,CS-90),s=sr(.8,1.4);if(avoid&&Math.hypot(x-d.hx,y-d.hy)<avoid)continue;
+  if(roadDist(x,y)<4||blocked(x,y,11*s)||inWater(x,y,14)||S.clear.some(c=>Math.hypot(x-c.x,y-c.y)<c.r+8))continue;kTree(x,y,spick(kinds),s);k++}}
+function owShrine(d,x,y){S.clear.push({x,y,r:60});if(owFree(x,y,26,d))kShrine(x,y)}
+function owFields(d,C){for(let i=0;i<3;i++){const w=sr(220,420),h=sr(160,300),x=d.x0+sr(100,CS-100-w),y=d.y0+sr(100,CS-100-h);if(Math.hypot(x+w/2-d.hx,y+h/2-d.hy)<260)continue;C.fields.push([x,y,x+w,y+h])}}
+function roadLamps(r,n){const[a,b]=r.pts,dx=a[0]-b[0],dy=a[1]-b[1],L=Math.hypot(dx,dy);for(let i=1;i<=n;i++){const t=(70+i*140)/L;if(t>.85)break;const s=i%2?1:-1,x=b[0]+dx*t-dy/L*s*(r.w/2+16),y=b[1]+dy*t+dx/L*s*(r.w/2+16);if(freeSpot(x,y,8)){kLantern(x,y,40,false);addObs({k:'c',x,y,r:5})}}}
+function kRock(x,y,s){const F=FR(x,y,sr(0,TAU));ico(M_.dstone,F,0,10*s,0,22*s,16*s,18*s);ico(M_.gstone,F,8*s,6*s,6*s,12*s,9*s,11*s);addObs({k:'c',x,y,r:20*s})}
+function kTent(x,y,col){const F=FR(x,y,sr(0,TAU));B_.put(M_.clothC(col),SG.cone6,F,0,24,0,34,48,34,2,1);cy(M_.wood,F,0,32,0,2,64);addObs({k:'c',x,y,r:32})}
+function kAltar(x,y){const F=FR(x,y,0);for(let i=0;i<8;i++){const t=i/8*TAU;bx(M_.dstone,FR(x+Math.cos(t)*56,y+Math.sin(t)*56,t),0,14,0,12,28,10)}cy(M_.char,F,0,6,0,30,12);cone(M_.flame,F,0,30,0,18,40);cone(M_.flame2,F,8,22,5,9,22);
+  S.fires.push({x,y,h:30,big:1});lampAt(x,y,50,1);addObs({k:'c',x,y,r:70})}
+function kRuinHall(x,y){const F=FR(x,y,0);bx(M_.gstone,F,0,8,0,230,16,130,4,.3);for(let i=0;i<5;i++)for(const s of[-1,1]){const h=sr(12,46);cy(M_.pillar,F,-90+i*45,16+h/2,s*48,4.5,h)}boxObs(x,y,230,130,0)}
+function owTown(d,C,X,Y,tk){const R=420;S.clear.push({x:X,y:Y,r:110});C.plazas.push([X-90,Y-90,X+90,Y+90]);const gates=[];
+  for(const r of d.roads){const[ex,ey]=r.pts[0],dx=X-ex,dy=Y-ey;let g=null;if(Math.abs(dx)>Math.abs(dy)){const sx=ex>X?X+R:X-R,t=(sx-ex)/dx,gy=ey+dy*t;g={x:sx,y:clamp(gy,Y-R+90,Y+R-90)}}else{const sy=ey>Y?Y+R:Y-R,t=(sy-ey)/dy,gx=ex+dx*t;g={x:clamp(gx,X-R+90,X+R-90),y:sy}}gates.push(Object.assign(g,{g:90}))}
+  if(gates.length)gates[0].name=d.name.ko;kWalls({pts:[[X-R,Y-R],[X+R,Y-R],[X+R,Y+R],[X-R,Y+R]],closed:true,style:'palace',gates});
+  kHall({x:X,y:Y-230,w:180,d:96,name:'관아'});kNPC(boardNpc(d,X+64,Y+64));for(let i=0;i<3;i++){const a=srand()*TAU,x=X+Math.cos(a)*sr(130,260),y=Y+Math.sin(a)*sr(130,260);if(owFree(x,y,14,d))kNPC(rumorNpc(d,x,y,i))}
+  owShrine(d,X-70,Y+70);owHouses(d,X,Y,360,18,['giwa','giwa','choga'],0);owHouses(d,X,Y,640,5,['choga'],0);for(const r of d.roads)roadLamps(r,3);owTrees(d,18,tk,600)}
+function owGround(d,C){const S0=coarse?256:512,k=S0/CS,[c,g]=cvs(S0,S0),th=THEMES[d.theme];g.scale(k,k);g.translate(-d.x0,-d.y0);
+  const line=(pts,w,col)=>{g.strokeStyle=col;g.lineWidth=w;g.lineCap='round';g.lineJoin='round';g.beginPath();pts.forEach((p,i)=>i?g.lineTo(p[0],p[1]):g.moveTo(p[0],p[1]));g.stroke()};
+  g.fillStyle=th.base;g.fillRect(d.x0,d.y0,CS,CS);for(let i=0;i<70;i++){g.globalAlpha=.22;g.fillStyle=th.blot[i%4];g.beginPath();g.ellipse(d.x0+sr(0,CS),d.y0+sr(0,CS),sr(40,240),sr(30,150),sr(0,3),0,TAU);g.fill()}g.globalAlpha=1;
+  if(C.bloodGround){const rg=g.createRadialGradient(d.hx,d.hy,40,d.hx,d.hy,420);rg.addColorStop(0,'rgba(90,6,16,.85)');rg.addColorStop(1,'rgba(40,0,6,0)');g.fillStyle=rg;g.fillRect(d.x0,d.y0,CS,CS)}
+  for(const[x0,y0,x1,y1]of C.fields){g.fillStyle=th.field;g.fillRect(x0,y0,x1-x0,y1-y0);g.strokeStyle='rgba(40,30,20,.5)';g.lineWidth=5;for(let x=x0;x<=x1;x+=110){g.beginPath();g.moveTo(x,y0);g.lineTo(x,y1);g.stroke()}for(let y=y0;y<=y1;y+=80){g.beginPath();g.moveTo(x0,y);g.lineTo(x1,y);g.stroke()}}
+  for(const w of S.water)if(w.k==='p'){g.fillStyle=th.bank;g.fillRect(w.minx-26,w.miny-26,w.maxx-w.minx+52,w.maxy-w.miny+52)}
+  for(const r of d.roads){line(r.pts,r.w+16,th.edge);line(r.pts,r.w,th.road)}
+  for(const p of C.plazas){if(!p)continue;const[x0,y0,x1,y1]=p;g.fillStyle=th.pave;g.fillRect(x0,y0,x1-x0,y1-y0);for(let y=y0;y<y1;y+=44)for(let x=x0+(Math.round((y-y0)/44)%2?28:0);x<x1;x+=56){g.fillStyle='rgba(0,0,0,'+sr(.03,.14).toFixed(2)+')';g.fillRect(x+1.5,y+1.5,53,41)}g.strokeStyle='rgba(30,26,22,.5)';g.lineWidth=4;g.strokeRect(x0,y0,x1-x0,y1-y0)}
+  for(let i=0;i<1800;i++){g.fillStyle=Math.random()<.5?'rgba(0,0,0,.12)':'rgba(255,255,255,.06)';g.fillRect(d.x0+sr(0,CS),d.y0+sr(0,CS),sr(2,5),sr(2,5))}
+  const t=texOf(c),m=new T.MeshPhongMaterial({map:t,shininess:8,specular:0x202020});C.disp.push(t,m);const pg=gq('owG',()=>{const q=new T.PlaneGeometry(CS,CS);q.rotateX(-PI/2);return q});
+  const gm=new T.Mesh(pg,m);gm.position.set(d.X,0,d.Y);gm.receiveShadow=true;C.grp.add(gm);const dm=new T.Mesh(pg,OW.detM);dm.position.set(d.X,.35,d.Y);dm.renderOrder=1;C.grp.add(dm)}
+const FIXED_BUILD={
+  '0,0':(d,C,X,Y,tk)=>{const R=520;S.clear.push({x:X,y:Y,r:150},{x:X-260,y:Y+250,r:70});C.plazas.push([X-140,Y-140,X+140,Y+140],[X+110,Y-440,X+410,Y-150]);
+    kWalls({pts:[[X-R,Y-R],[X+R,Y-R],[X+R,Y+R],[X-R,Y+R]],closed:true,style:'palace',gates:[{x:X,y:Y+R,name:'숭례문',two:true,big:true,g:110},{x:X,y:Y-R,name:'숙정문'},{x:X+R,y:Y,name:'흥인지문',two:true},{x:X-R,y:Y,name:'돈의문'}]});
+    kHall({x:X+260,y:Y-310,w:250,d:120,tiers:2,plat:20,name:'인정전'});kHall({x:X-260,y:Y+140,w:190,d:100,name:'비변사'});kPav({x:X+170,y:Y+170,w:80,d:64,tiers:2,name:'종루'});
+    kNPC({x:X-260,y:Y+245,k:'crane',v:[{if:'m_end',lines:[['@비변사 서리 · Council Clerk','Lord Baek\'s office is sealed. Nobody knows who chairs the council now. Everyone would like to.']]},{if:'m1_met&!m3_gwak',lines:[['baek','The Houses won\'t investigate themselves, hunter. That is what you are for.']]}]});
+    kNPC(boardNpc(d,X+70,Y+70));kNPC({x:X+300,y:Y+270,k:'merchant',v:HWANG});kNPC(rumorNpc(d,X-130,Y-80));kNPC(rumorNpc(d,X+90,Y-120));
+    kNPC({x:X-70,y:Y+330,k:'soldier',v:[{lines:[['@수문장 · Gate Captain','Papers, hunter. …A Crane letter. Go on, then.'],['@수문장 · Gate Captain','Since the coup, half the city is loyal and the other half is very quiet.']]}]});
+    owShrine(d,X+60,Y+400);for(const r of d.roads)roadLamps(r,3);owHouses(d,X-270,Y-270,200,8,['giwa'],0);owHouses(d,X+280,Y+330,150,5,['giwa'],0);owHouses(d,X-330,Y+400,100,3,['giwa'],0);owTrees(d,14,tk,600)},
+  '0,1':(d,C,X,Y,tk)=>{S.clear.push({x:X,y:Y,r:130});C.plazas.push([X-80,Y-80,X+80,Y+80]);kNPC({x:X+70,y:Y-40,k:'shaman',v:[{if:'m1_danbi&!m4_danbi',lines:[['danbi','North to the capital. Lord Baek keeps his office at the Border Defense Council hall, west of the main road.']]}]});
+    owShrine(d,X-90,Y+70);kNPC(boardNpc(d,X+60,Y+95));kNPC(rumorNpc(d,X-160,Y-60));owHouses(d,X,Y,430,12,['choga','choga','giwa'],0);owTrees(d,30,tk,330);owFields(d,C);for(const r of d.roads)roadLamps(r,2)},
+  '0,-5':(d,C,X,Y,tk)=>{const R=430;S.clear.push({x:X,y:Y+200,r:280},{x:X,y:Y-110,r:110});C.plazas.push([X-200,Y-60,X+200,Y+400]);
+    kWalls({pts:[[X-R,Y-R],[X+R,Y-R],[X+R,Y+R],[X-R,Y+R]],closed:true,style:'fort',gates:[{x:X,y:Y+R,name:'범바위성',two:true},{x:X,y:Y-R},{x:X+R,y:Y},{x:X-R,y:Y}]});
+    kHall({x:X,y:Y-240,w:220,d:100,name:'범가 본영'});for(const s of[-1,1]){kFlag(X+s*150,Y-140,'#d9a521');kFlag(X+s*260,Y+380,'#d9a521')}
+    kNPC({x:X+40,y:Y-110,k:'tiger',v:[{if:'seal_tiger&!m3_gwak',lines:[['gwak','Tell the court I have been loyal longer than they have been honest.']]},{if:'m3_gwak',lines:[['@범가 군관 · Tiger Officer','The general is with the army now. We hold the fort and wait for news.']]}]});
+    kNPC({x:X-60,y:Y-110,k:'soldier',v:[{if:'seal_tiger&!m3_ambush',lines:[['mok','When you ride south again, I ride with you. The general\'s orders.']]},{if:'mok_spared',lines:[['mok','My son asks about you. I told him you\'re shorter than the stories.']]}]});
+    kNPC(boardNpc(d,X-120,Y+20));kNPC(rumorNpc(d,X+150,Y+20));owShrine(d,X+300,Y-300);for(let i=0;i<4;i++)kTent(X-330+i*40+sr(-10,10),Y-330+sr(-10,10),'#e8dcc0');owTrees(d,26,tk,620);for(const r of d.roads)roadLamps(r,2)},
+  '1,5':(d,C,X,Y,tk)=>{const R=430;S.clear.push({x:X+220,y:Y+170,r:230},{x:X-200,y:Y-60,r:70},{x:X+330,y:Y+330,r:50});C.plazas.push([X-100,Y-100,X+100,Y+100],[X+40,Y-40,X+410,Y+410]);
+    kWalls({pts:[[X-R,Y-R],[X+R,Y-R],[X+R,Y+R],[X-R,Y+R]],closed:true,style:'palace',gates:[{x:X,y:Y-R,name:'매화포',two:true},{x:X,y:Y+R},{x:X-R,y:Y},{x:X+R,y:Y}]});
+    kPond({x0:X+160,y0:Y-400,x1:X+400,y1:Y-200});kHall({x:X-200,y:Y-160,w:200,d:96,name:'매화 상단'});kHouse(X+150,Y-110,120,70,'giwa',0,false);kHouse(X+310,Y-110,120,70,'giwa',0,false);kHouse(X-330,Y+300,110,70,'giwa',PI/2,false);
+    kNPC({x:X-200,y:Y-60,k:'lady',v:[{if:'acc_plum',lines:[['yun','You told the Crane it was us. Two of my warehouses burned before noon. Leave my port, hunter.']]},{if:'seal_plum',lines:[['yun','The Plum pays its debts, hunter. Both kinds.']]}]});
+    kLore({x:X+330,y:Y+330,id:'plum_ledger',t:'선적 장부 · Shipping Ledger',kind:'doc',need:'m2b_fought&!m2b_ledger',set:'m2b_ledger',
+      lines:['Twelve crates, "red rice wine", sealed with the Plum. Destination: Crane Grove Manor, by the west road.','In the margin, in the steward\'s hand: "Seal as usual. Lord B. pays on delivery. Madam is not to be told."']});
+    kNPC(boardNpc(d,X+70,Y+70));kNPC(rumorNpc(d,X-120,Y+150));kNPC({x:X-60,y:Y+230,k:'villager',v:[{lines:[['@뱃사공 · Ferryman','The river boats bring rice up from the south and salt down from the coast. Lately they bring crates nobody will open in daylight.']]}]});
+    owShrine(d,X-230,Y+250);owHouses(d,X-200,Y+140,200,7,['giwa','choga'],0);for(const r of d.roads)roadLamps(r,2);owTrees(d,20,tk,620)},
+  '5,0':(d,C,X,Y,tk)=>{S.clear.push({x:X,y:Y+200,r:280},{x:X+60,y:Y-40,r:70});C.plazas.push([X-160,Y-60,X+160,Y+60]);kHall({x:X,y:Y-160,w:200,d:100,name:'방울사'});kPagoda(X-220,Y-110);kPav({x:X+210,y:Y-120,w:70,d:60,name:'종각'});
+    kNPC({x:X+60,y:Y-40,k:'shaman',v:[{if:'seal_bell',lines:[['ok','The shrines are listening for you. Walk carefully. They get attached.']]}]});kNPC({x:X-90,y:Y-40,k:'monk',v:[{lines:[['@스님 · Monk','The bells ring by themselves when the dead are close. Lately they ring all night.']]}]});
+    for(let i=0;i<6;i++){const t=i/6*TAU;kStone(X+Math.cos(t)*120,Y-160+Math.sin(t)*30+130)}owShrine(d,X-280,Y+40);owShrine(d,X+300,Y+60);kNPC(boardNpc(d,X+160,Y+40));owTrees(d,50,tk,420);for(const r of d.roads)roadLamps(r,2)},
+  '-5,0':(d,C,X,Y,tk)=>{const R=380;S.clear.push({x:X,y:Y+120,r:240},{x:X-250,y:Y-230,r:50},{x:X+160,y:Y-230,r:60},{x:X,y:Y+300,r:60});C.plazas.push([X-180,Y-60,X+180,Y+320]);
+    kWalls({pts:[[X-R,Y-R],[X+R,Y-R],[X+R,Y+R],[X-R,Y+R]],closed:true,style:'palace',gates:[{x:X,y:Y+R,name:'학림원',two:true},{x:X-R,y:Y},{x:X+R,y:Y}]});
+    kHall({x:X,y:Y-200,w:220,d:100,name:'학림원'});kPav({x:X+250,y:Y-260,w:70,d:60,name:'서재'});
+    kLore({x:X-250,y:Y-230,id:'baek_letter',t:'백재원의 편지 · Baek\'s Letter',kind:'doc',need:'m4_fought&!m4_letter',set:'m4_letter',
+      lines:['To the Lord of the Blood Court. The hunter looks wherever I point. I have pointed at the Plum, and next at the Tiger. By the time anyone looks at the Crane, the Houses will be at each other\'s throats, and the throne will need a strong minister.','You promised me a reign without end. I promise you a kingdom without a dawn. I will meet you at the old capital on the night of the red moon.','Postscript: the shamans are a nuisance. Put out more shrines.']});
+    kNPC({x:X+130,y:Y+40,k:'crane',v:[{if:'!m4_fought',lines:[['@학가 집사 · Crane Steward','The master is away. The master is always away when guests arrive with swords.']]}]});owTrees(d,30,['blossom','pine'],460);owShrine(d,X-200,Y+470);for(const r of d.roads)roadLamps(r,2)},
+  '0,-3':(d,C,X,Y,tk)=>{S.clear.push({x:X,y:Y+120,r:300},{x:X,y:Y-60,r:80});for(let i=0;i<14;i++){const a=i/14*TAU,r=sr(380,470);kTent(X+Math.cos(a)*r,Y+60+Math.sin(a)*r*.8,i%3?'#e8dcc0':'#d9a521')}
+    for(const s of[-1,1])kFlag(X+s*90,Y-120,'#d9a521');kNPC({x:X+120,y:Y-140,k:'tiger',v:[{lines:[['@범가 병사 · Tiger Soldier','We marched because the runners said the court would disband us. Now nobody will say who sent the runners.']]}]});for(const r of d.roads)roadLamps(r,2);owTrees(d,30,tk,560)},
+  '-7,-7':(d,C,X,Y,tk)=>{S.clear.push({x:X,y:Y,r:330},{x:X,y:Y+260,r:260});C.bloodGround=true;C.plazas.push([X-300,Y-300,X+300,Y+300]);
+    const sq=[[X-580,Y-580],[X+580,Y-580],[X+580,Y+580],[X-580,Y+580]];for(let i=0;i<4;i++){const a=sq[i],b=sq[(i+1)%4];for(let t=0;t<1;t+=.25){if(i===2&&t>=.25&&t<.75)continue;const t2=t+.18;kWallRun(a[0]+(b[0]-a[0])*t,a[1]+(b[1]-a[1])*t,a[0]+(b[0]-a[0])*t2,a[1]+(b[1]-a[1])*t2,'fort',1)}}
+    kAltar(X,Y-420);kRuinHall(X-380,Y-300);kRuinHall(X+380,Y-300);for(let i=0;i<8;i++){const a=i/8*TAU;kFlag(X+Math.cos(a)*350,Y+Math.sin(a)*350,'#7a0d1c')}
+    kLore({x:X+420,y:Y+120,id:'mem_gaegyeong',t:'기억 · Gaegyeong, 1388',kind:'mem',once:'mem_gaegyeong',lines:['The palace archive smells of ink and rain. I am copying land registers by lamplight when the soldiers come through the door.','A minister kneels beside me. His hands are cold. "You keep the records," he says. "Then you will remember us."','His name is Muhyeon. He opens his wrist. I am too weak to turn my head away.']});
+    owTrees(d,40,['dead'],640)}};
+/* ---------- open world: main story, 배신의 달 · The Moon of Betrayal ---------- */
+const HWANG=[{if:'seal_plum&!hwang_done',q:1,give:true,lines:[['@황 집사 · Steward Hwang','You. You were at the port. Did Madam Yun send you?'],['seol','The ledger did. Your handwriting is very neat.'],
+    ['@황 집사 · Steward Hwang','Lord Baek said it was only wine. A favor between Houses. He paid for my mother\'s doctor, and then for her funeral.'],['@황 집사 · Steward Hwang','When I asked what was really in the crates, his men showed me. I have not slept since.'],
+    {choice:{sp:'seol',q:'Hwang betrayed the House that raised him. What do you do with him?',opts:[['Send him back to Madam Yun to confess.','hwang_turned',[['@황 집사 · Steward Hwang','She will have me flogged. …She will be right to.'],{rep:['plum',10]},{set:'hwang_done'}]],
+      ['Let him run. Baek will be hunting him too.','hwang_free',[['@황 집사 · Steward Hwang','I won\'t forget this. I\'ll go somewhere that has no Houses at all.'],{rep:['plum',-5]},{set:'hwang_done'}]]]}}]},
+  {if:'!seal_plum',lines:[['@황 집사 · Steward Hwang','Silk, ginseng, salt. Whatever you need. The Plum delivers. Discreetly.']]}];
+const MAINQ={
+ m1:()=>({id:'m1',main:1,title:'부름 · The Summons',clan:'crown',reward:{picks:1},after:()=>{addQuest(MAINQ.m2a(),true);addQuest(MAINQ.m2b(),true);addQuest(MAINQ.m2c(),true);OW.track='m2a';bark('nar','Three Houses to visit, in any order: Tiger to the north, Plum to the south, Bells to the east.')},stages:[
+  {t:'talk',...at(0,1,70,-40),r:80,label:'Speak with the bell shaman by the village square',lines:[
+    ['nar','1624. A year ago, a palace coup put a new king on the throne. The men who made him are counting their rewards, and finding them short.'],
+    ['nar','Four Houses hold the kingdom between them: the Crane at court, the Tiger on the northern border, the Plum on the southern roads, and the Circle of Bells at the shrines.'],
+    ['danbi','You\'re Seol. You look exactly like the drawing.'],['seol','Which drawing?'],['danbi','The one the Circle of Bells has kept for two hundred years. My teacher\'s teacher\'s teacher was a shaman called Haerang. She left instructions.'],
+    ['seol','…What did she write?'],['danbi','"When the moon goes red in a year of crowns, find the half-blood and point them at the Houses."'],['seol','She always did like giving orders after she was gone.'],
+    ['danbi','Blood nests are opening in every province, and the roadside shrines are going dark. Lord Baek of the Crane has asked for you by name. He\'s in Hanyang, just north of here.'],
+    ['danbi','Walk the roads. Talk to people. Every village has a notice board 榜 where the Houses post bounties, and you\'ll want their favor before this is over.'],{set:'m1_danbi'}]},
+  {t:'go',...at(0,0,0,520),r:150,label:'Go north to the South Gate of Hanyang'},
+  {t:'talk',...at(0,0,-260,250),r:80,label:'Find Lord Baek at the Border Defense Council hall',lines:[
+    ['baek','The hunter of the old stories. You\'re shorter than the paintings.'],['seol','Everyone says that.'],['baek','I am Baek Jae-won, of the House of the Crane. I sit on the Border Defense Council, which these days means I sit on everything.'],
+    ['baek','Blood nests are opening faster than we can burn them, and they open where someone has been paid to look away. One of the four Houses is feeding the Blood Court.'],['seol','Which one?'],
+    ['baek','That is what I am paying you to learn. Visit the Tiger at Beombawi Fortress in the north, the Plum at Maehwa Port in the south, and the Circle of Bells at their temple in the east.'],
+    {choice:{sp:'baek',q:'Questions, hunter?',opts:[['Why not investigate the Crane too?','m1_askcrane',[['baek','Because I am the Crane, and I would hardly hire a hunter to find myself.'],['seol','People do stranger things.'],['baek','Not people who keep their books as tidy as mine.']]],
+      ['What does the Crane gain from this?','m1_askgain',[['baek','Order. A kingdom that survives its coup. And, I admit, the gratitude of the throne.'],['seol','Gratitude is a cheap currency.'],['baek','Only to people who have never been owed it.']]],['I\'ll go.','',[]]]}},
+    ['baek','Take this letter of passage. Every House will open its gates to it. Most of them, anyway.'],{set:'m1_met'}]}]}),
+ m2a:()=>({id:'m2a',main:1,title:'범의 국경 · The Tiger\'s Border',clan:'tiger',reward:{rep:{tiger:15},picks:2},after:m2Check,stages:[
+  {t:'go',...at(0,-5,0,430),r:150,label:'Ride north to Beombawi Fortress'},
+  {t:'talk',...at(0,-5,40,-110),r:80,label:'Speak with General Gwak',lines:[['gwak','A letter of passage from Baek Jae-won. Of course it is.'],
+    ['gwak','Do you know what I did last spring, hunter? I opened the gates of the capital at midnight so the new king could walk in. And the court gave me this: a fortress where the ink freezes.'],
+    ['seol','You\'re angry.'],['gwak','I\'m cold. Angry men are warmer. The dead have come over my north wall every night this month. Hold the courtyard tonight and I\'ll talk to you about traitors.']]},
+  {t:'fight',...at(0,-5,0,200),R:230,r:5,label:'Hold Beombawi\'s courtyard',waves:[['gangshi','gangshi','guard','guard','bat'],['guard','archer','archer','mudang','gangshi']],barks:[[1,'gwak','They come in the uniforms of my own dead. Somebody is digging up my graves.']]},
+  {t:'talk',...at(0,-5,40,-110),r:90,label:'Report to General Gwak',lines:[['gwak','You fight like a garrison of twenty.'],['seol','Who is digging up your dead, General?'],
+    ['gwak','Someone who wants the Tiger to look like the traitor. A bitter general, angry at court, corpses in his yard. The story writes itself.'],['gwak','Here. The Tiger seal. Show it to whoever is lying to you.'],
+    ['mok','Captain Mok, Tiger First Company. The general says I am to ride with you when you go back south.'],['seol','I work alone.'],['mok','Then I\'ll ride behind you. Alone.'],{set:'seal_tiger'}]}]}),
+ m2b:()=>({id:'m2b',main:1,title:'소금과 비단 · Salt and Silk',clan:'plum',reward:{rep:{plum:15},picks:2},after:m2Check,stages:[
+  {t:'go',...at(1,5,0,0),r:320,label:'Travel south to Maehwa Port'},
+  {t:'talk',...at(1,5,-200,-60),r:80,label:'Speak with Madam Yun at the Plum trading house',lines:[['yun','A hunter with a Crane letter. Sit. Tea? No? Then business.'],
+    ['yun','Three of my warehouses were opened by the dead this season. They didn\'t touch the silk. They opened only one kind of crate.'],['seol','What was in it?'],['yun','That is the problem. I don\'t know. My steward, Hwang, handles those shipments.'],
+    ['yun','The dead are in my east warehouse yard tonight. Clear it, and then look at the crates.']]},
+  {t:'fight',...at(1,5,220,170),R:200,r:6,label:'Clear the east warehouse yard',waves:[['gangshi','gangshi','bat','bat','mudang'],['yangban','guard','gangshi','gangshi']],post:[['seol','The crates are smashed. One of them still has a ledger nailed inside the lid.'],{set:'m2b_fought'}]},
+  {t:'flag',f:'m2b_ledger',...at(1,5,330,330),r:60,label:'Read the ledger in the warehouse yard'},
+  {t:'talk',...at(1,5,-200,-60),r:80,label:'Show the ledger to Madam Yun',lines:[['yun','That is my seal. And it isn\'t.'],['yun','Look at the third petal. Ours has a nick in it; my grandfather dropped the stamp the day he founded the House. This one is whole.'],
+    ['seol','A forgery, made by someone who has seen your seal but never held it.'],['yun','Or someone who had my steward hold it for them. Hwang left for the capital three days ago.'],
+    {choice:{sp:'yun',q:'What will you tell Lord Baek?',opts:[['The truth: the seal is forged.','plum_trust',[['yun','Then the Plum owes you. We remember debts better than anyone.']]],['Nothing, yet.','',[['yun','Careful. Silence is also an answer, and the Crane is very good at reading it.']]]]}},{set:'seal_plum'}]}]}),
+ m2c:()=>({id:'m2c',main:1,title:'방울 소리 · The Sound of Bells',clan:'bell',reward:{rep:{bell:15},picks:2},after:m2Check,stages:[
+  {t:'go',...at(5,0,0,0),r:320,label:'Go east to the Temple of Bells'},
+  {t:'talk',...at(5,0,60,-40),r:80,label:'Speak with Grand Shaman Ok',lines:[['ok','Haerang\'s half-blood. The Circle has waited a long time to be disappointed by you.'],['seol','You sound like her.'],['ok','We all do. It\'s in the training.'],
+    ['ok','Every shrine on every road is lit with a little of Haerang\'s soul, still, after two hundred years. When one goes dark, the dead come through. Three went dark this month, each one close to a House you have been sent to visit.'],
+    ['seol','Someone is putting them out.'],['ok','Someone with a letter of passage into every House. Tonight the dead will come for this temple. Help us keep the bells ringing.']]},
+  {t:'fight',...at(5,0,0,200),R:230,r:6,label:'Keep the temple bells ringing',waves:[['gangshi','gangshi','wisp','wisp','mudang'],['gwishin','gwishin','bat','bat','gangshi']],barks:[[1,'ok','Ring them! Ring them all!']]},
+  {t:'talk',...at(5,0,60,-40),r:90,label:'Return to Grand Shaman Ok',lines:[['ok','The bells held.'],['ok','Take this. A talisman of true sight. Masks don\'t hide much from it.'],['seol','Masks?'],
+    ['ok','The Blood Court has an envoy who wears one. He has been seen at Crane Grove Manor, west of the capital. I have told no one. Ministers have long ears.'],{set:'bell_sight'},{set:'seal_bell'}]}]}),
+ m3:()=>({id:'m3',main:1,title:'증거 · The Evidence',clan:'crown',reward:{picks:2},after:()=>{addQuest(MAINQ.m4())},stages:[
+  {t:'talk',...at(0,0,-260,250),r:80,label:'Bring your findings to Lord Baek',lines:[['baek','Three seals in your pack. Efficient.'],['baek','So. Who feeds the Blood Court?'],
+    {choice:{sp:'baek',q:'Name the traitor House.',opts:[
+      ['The Plum. The ledger carries their seal.','acc_plum',[['baek','I feared as much. Merchants will sell anything, eventually.'],['baek','I will have their warehouses sealed by morning.'],{rep:['plum',-45]}]],
+      ['The Tiger. Gwak is bitter enough to do it.','acc_tiger',[['baek','A grieving general with an army. Yes. That is exactly the shape of it.'],{rep:['tiger',-35]}]],
+      ['The Crane. The ledger was going to your manor.','acc_crane',[['baek','…Bold. Forged ledgers say whatever the forger wants. I will look into my own house, naturally.'],['seol','Naturally.'],{rep:['crane',-25]}]],
+      ['I don\'t know yet.','acc_none',[['baek','Prudence. How unlike the stories.']]]]}},
+    ['@전령 · Runner','My lord! General Gwak has left Beombawi with the northern garrison. He is camped a day\'s march north of the capital!'],
+    ['baek','And so the Tiger shows its stripes.'],['baek','Hunter, Captain Mok will meet you on the north road. Go to Gwak\'s camp. Bring him back in chains, or don\'t bring him back.'],{set:'m3_gwak'}]},
+  {t:'fight',...at(0,-2,0,0),R:260,r:7,label:'Meet Captain Mok on the north road',pre:[['mok','Hunter. Wait.'],['seol','Mok? You were meant to meet me at the camp.'],['mok','I\'m sorry. I truly am.']],
+    waves:[[{t:'guard',nm:'목 대장 · Captain Mok',hp:4},'guard','guard','archer'],['gangshi','gangshi','bat','bat','mudang']],barks:[[0,'mok','Lord Baek said you would never reach the general. I need him to be right.'],[1,'mok','He calls the dead like dogs. Did you know that? Like dogs.']],
+    post:[['mok','Lord Baek holds my wife and my son at Crane Grove Manor. If you reached Gwak alive, I would never see them again.'],['seol','Baek.'],['mok','Every road he sent you down had a pit at the end. The ledger. The seals. Me.'],{set:'m3_ambush'},
+      {choice:{sp:'seol',q:'Captain Mok is on his knees. What do you do?',opts:[['Spare him. "Go and find your family."','mok_spared',[['mok','…I don\'t deserve it.'],['seol','Nobody gets what they deserve. That isn\'t how any of this works. Go.'],{rep:['tiger',10]}]],
+        ['He chose his side. So do you.','mok_killed',[['mok','Tell my son… tell him I was a soldier.'],['nar','Captain Mok does not get up again.']]]]}}]},
+  {t:'talk',...at(0,-3,0,-60),r:90,label:'Reach General Gwak\'s camp',lines:[['gwak','The hunter. Baek\'s errand-runner.'],['seol','I was. Then his captain tried to kill me on your road.'],
+    {choice:{sp:'gwak',q:'Gwak\'s hand is on his sword. What do you tell him?',opts:[
+      ['"Mok is alive. He will testify that Baek turned him."','gwak_ally',[['gwak','Mok was the best officer I had. If Baek could turn him, Baek can turn anyone.']],null,'mok_spared'],
+      ['"Grand Shaman Ok saw the Blood Court\'s envoy at the Crane manor."','gwak_ally',[['gwak','The Bells never lie. They just never say anything useful. Until now.']],null,'bell_sight&plum_trust'],
+      ['"Who told your garrison to march?"','gwak_ask',[['gwak','Runners from the capital. They said the king meant to disband the northern army. I came to ask him myself.'],['seol','Whose runners?'],['gwak','…They wore Crane white.'],
+        {choice:{sp:'gwak',q:'He hesitates.',opts:[['"Then you already know who lied to you."','gwak_ally',[['gwak','I suppose I do.']]],['Draw your sword.','gwak_fight',[['gwak','So be it. I\'ve waited all year for someone to fight honestly.']]]]}}]],
+      ['Draw your sword.','gwak_fight',[['gwak','So be it. I\'ve waited all year for someone to fight honestly.']]]]}}]},
+  {t:'fight',if:'gwak_fight&!gwak_ally',...at(0,-3,0,120),R:260,r:8,boss:true,label:'Defeat General Gwak',waves:[[{t:'boss3',nm:'곽문성 · General Gwak, the Cold Tiger',hp:.9}]],
+    taunts:[[.5,'gwak','I opened the gates for this king! I should have kept them shut!'],[.2,'gwak','Tell them… the Tiger was loyal…']],
+    post:[['gwak','Baek… sent runners… said the king would disband us. I only came… to ask.'],['seol','I know. I\'m sorry.'],['gwak','Then make it… worth something.'],{rep:['tiger',-20]},{set:'gwak_dead'}]},
+  {t:'talk',if:'gwak_ally',...at(0,-3,0,-60),r:120,label:'Hear what Gwak knows',lines:[['gwak','Then Baek has been playing all four Houses against each other, and the Blood Court is holding his coat.'],
+    ['gwak','I will stand down and go to the king myself, unarmed. And I\'ll tell you what my scouts have seen: a masked rider leaving Crane Grove Manor every night, riding north-west toward the ruins of old Gaegyeong.'],{rep:['tiger',20]}]}]}),
+ m4:()=>({id:'m4',main:1,title:'학의 둥지 · The Crane\'s Nest',clan:'crane',reward:{rep:{bell:10},picks:2},after:()=>{addQuest(MAINQ.m5())},stages:[
+  {t:'go',...at(-5,0,0,0),r:320,label:'Go west to Crane Grove Manor',lines:[['seol','White walls, clean gravel, every lamp lit. It looks like a place where nothing bad has ever been written down.']]},
+  {t:'fight',...at(-5,0,0,120),R:220,r:9,label:'Break through the Crane household guard',waves:[['guard','guard','guard','archer','archer'],['yangban','yangban','gwishin','bat','bat']],barks:[[1,'seol','House guards and the dead, side by side. Baek isn\'t even hiding it here.']],post:[{set:'m4_fought'}]},
+  {t:'flag',f:'m4_letter',...at(-5,0,-250,-230),r:60,label:'Search the manor for Baek\'s papers'},
+  {t:'talk',if:'mok_spared',...at(-5,0,160,-230),r:90,label:'Find Mok\'s family',lines:[['mok','Hunter! They\'re alive. They were in the cellar, behind the wine.'],['@목 대장의 아내 · Mok\'s Wife','He said you\'d come. He said you were the kind who comes.'],['seol','Take them north to the general. Nowhere west of the capital is safe tonight.']]},
+  {t:'talk',if:'mok_killed',...at(-5,0,160,-230),r:90,label:'Find Mok\'s family',lines:[['@목 대장의 아내 · Mok\'s Wife','Who are you? Where is my husband?'],['seol','He was a soldier. He asked me to tell your son that.'],['nar','She doesn\'t ask anything else.']]},
+  {t:'talk',...at(-5,0,0,300),r:90,label:'Meet Danbi at the manor gate',lines:[['danbi','The shrines on the north-west road just went dark, all at once. Someone is clearing a path.'],['seol','To Gaegyeong.'],
+    ['danbi','To the old capital. That\'s where your story started, isn\'t it?'],['seol','You\'ve read the back of the drawing.'],['danbi','Haerang wrote a lot on the back.'],{set:'m4_danbi'}]}]}),
+ m5:()=>({id:'m5',main:1,title:'배신의 달 · The Moon of Betrayal',clan:'crown',reward:{picks:3},after:owEnding,stages:[
+  {t:'go',...at(-7,-7,0,560),r:220,label:'Ride north-west to the ruins of old Gaegyeong'},
+  {t:'fight',...at(-7,-7,0,260),R:240,r:11,label:'Break into the old palace grounds',waves:[['yangban','yangban','gwishin','gwishin','wisp','wisp'],['brute','yangban','mudang','mudang','bat','bat']]},
+  {t:'talk',...at(-7,-7,0,0),r:100,label:'Face the masked envoy',lines:[['@가면 사신 · The Masked Envoy','You came quickly. I had hoped the Houses would keep you busy a few more weeks.'],
+    ['seol','Take it off, Baek. The Bells gave me eyes for masks.','bell_sight'],['seol','I know that voice. You\'ve been reading me letters in it for a month.','!bell_sight'],
+    ['baek','Then let\'s not pretend. Every House betrays the crown in the end, hunter. The Tiger with swords, the Plum with ledgers, the Bells with prophecies.'],
+    ['baek','I only chose a master who will never die, and never need replacing.'],['seol','That\'s what Muhyeon told me in 1388. He said a kingdom is just a man who refuses to die.'],['baek','Wise.'],
+    ['seol','I was the one bleeding on the archive floor when he said it. He made it sound like a gift.'],['baek','It is.'],['seol','Then come and see what it bought me.']]},
+  {t:'fight',...at(-7,-7,0,0),R:300,r:12,boss:true,label:'Defeat Baek Jae-won',waves:[[{t:'boss2',nm:'백재원 · Baek Jae-won, the Hollow Minister',hp:.95}]],
+    taunts:[[.5,'baek','I kept the books for this kingdom. I know exactly what it owes me!'],[.2,'baek','He promised… a reign… without end…']]},
+  {t:'talk',...at(-7,-7,0,0),r:400,label:'The Blood King',lines:[['king','My minister. Ambitious, short-sighted, very nearly useful.'],['king','Hello, child. Wandering the provinces now? Collecting favors from little Houses?'],
+    ['seol','Somebody has to. You keep breaking them.'],['king','I don\'t break Houses. I wait in the room while they break each other. It is the only thing that has ever happened in this country.'],
+    ['seol','You\'re wrong. The other thing that happens is that people rebuild.'],['king','Then let\'s see which of us gets tired first.']]},
+  {t:'fight',...at(-7,-7,0,0),R:300,r:13,boss:true,label:'Defeat the Blood King',waves:[[{t:'boss',nm:'혈왕 · Muhyeon, the Blood King',hp:1.2}]],
+    taunts:[[.66,'king','Crane, Tiger, Plum, Bells. I have outlived better Houses than these.'],[.33,'king','Gaegyeong was mine. Hanyang will be mine. Everything ends in my hands!'],[.1,'king','Why does it never end… in mine…']]},
+  {t:'talk',...at(-7,-7,0,0),r:400,label:'Dawn over Gaegyeong',lines:[['danbi','It\'s over. The shrines are lighting themselves again, all the way to the capital.'],
+    ['danbi','The Crane burned two Plum warehouses on your word before the truth came out. Madam Yun will remember that for a long time.','acc_plum'],
+    ['danbi','The Tiger officers are angry with you. Baek used your accusation to ride them out of the capital.','acc_tiger'],
+    ['danbi','Madam Yun sent a message: the Plum owes you a debt, and the Plum always pays.','plum_trust&!acc_plum'],
+    ['danbi','General Gwak rode to the capital unarmed and knelt before the king. They say the king listened.','gwak_ally'],
+    ['danbi','The Tiger buried General Gwak at Beombawi. They will need a long time to forgive the Crane, and maybe you.','gwak_dead'],
+    ['danbi','Captain Mok is home with his family, in the north. He says his son wants to be a hunter.','mok_spared'],
+    ['seol','And the Crane?'],['danbi','Leaderless. Ashamed. Still very good at paperwork. They\'ll survive.'],['seol','Everyone survives here. That\'s the trick of it.'],
+    ['danbi','Haerang left one last line on the back of the drawing.'],['seol','Read it.'],['danbi','"Don\'t let them make you a king. Make them a country."'],['seol','…That sounds like her.'],
+    {set:'m_end'},['nar','The main story is complete. The roads, villages, Houses and nests of Joseon are still open.']]}]})};
+function m2Check(){if(['m2a','m2b','m2c'].every(id=>OW.quests.some(q=>q.id===id&&q.done))&&!OW.quests.some(q=>q.id==='m3')){addQuest(MAINQ.m3());bark('danbi','All three seals. Go back to Lord Baek in Hanyang, and watch his face when you say a name.')}}
+function owEnding(){OW.ended=true;owSave();G.state='chdone';$('cdY').textContent='1624';$('cdT').textContent='배신의 달 · The Moon of Betrayal — complete';
+  $('cdL').textContent='Baek Jae-won betrayed the crown for a reign without end, and Muhyeon is ash at last. What the Houses remember of you depends on what you said and whom you spared.';
+  $('cdS').innerHTML=['crane','tiger','plum','bell'].map(c=>CLANS[c].ko+' · '+CLANS[c].en+' <b>'+OW.rep[c]+'</b> ('+repWord(OW.rep[c])+')').join('<br>');
+  $('cdNext').style.display='';$('cdNext').textContent='계속 탐험 · KEEP EXPLORING';$('cdSeal').textContent='終';show('chdone',true);sfx(330,.8,'triangle',.07,330)}
+/* ---------- open world: streaming, quests, saves, HUD ---------- */
+function owContent(d,C){const X=d.hx,Y=d.hy,th=d.theme,tk=th==='snow'?['snowpine']:th==='autumn'?['maple','maple','pine']:th==='palace'?['dead','dead','pine']:['pine','pine','blossom'],site=d.site;
+  if(d.clearHub)S.clear.push({x:X,y:Y,r:d.clearHub});
+  if(FIXED_BUILD[d.k])FIXED_BUILD[d.k](d,C,X,Y,tk);
+  else if(site==='village'){S.clear.push({x:X,y:Y,r:95});C.plazas.push([X-70,Y-70,X+70,Y+70]);kNPC(boardNpc(d,X+46,Y-46));const n=2+(srand()*2|0);
+    for(let i=0;i<n;i++){const a=srand()*TAU,x=X+Math.cos(a)*sr(110,210),y=Y+Math.sin(a)*sr(110,210);if(owFree(x,y,14,d))kNPC(rumorNpc(d,x,y,i))}
+    if(srand()<.6)owShrine(d,X-60,Y+60);owHouses(d,X,Y,420,sr(9,15)|0,['giwa','choga','choga'],0);for(const r of d.roads)roadLamps(r,2);owTrees(d,22,tk,300);if(d.biome==='fields')owFields(d,C)}
+  else if(site==='town')owTown(d,C,X,Y,tk);
+  else if(site==='temple'){S.clear.push({x:X,y:Y+60,r:120});kHall({x:X,y:Y-70,w:170,d:90,name:d.name.ko});kPagoda(X+180,Y+10);
+    kNPC({x:X-70,y:Y+50,k:'monk',v:[{lines:[['@스님 · Monk',spick(RUMORS.bell)],['@스님 · Monk','Rest if you need to. The shrine here has never gone out.']]}]});owShrine(d,X+60,Y+90);owTrees(d,40,tk,260);for(const r of d.roads)roadLamps(r,1)}
+  else if(site==='nest'){S.clear.push({x:X,y:Y,r:300});C.bloodGround=true;kAltar(X,Y-200);for(let i=0;i<6;i++){const a=i/6*TAU+.3;kFlag(X+Math.cos(a)*270,Y+Math.sin(a)*270,'#7a0d1c')}owTrees(d,30,['dead','dead',tk[0]],380);
+    C.nests.push({key:d.k,x:X,y:Y,R:250,r:d.tier,reward:true,label:'Burn the nest at '+d.name.en,waves:waveSet(d.tier,true),barks:[[0,'seol','A blood nest. Burn it, and the roads around here sleep again.']]})}
+  else if(site==='ruins'){S.clear.push({x:X,y:Y,r:150});for(let i=0;i<5;i++){const a=srand()*TAU,r=sr(200,380),x=X+Math.cos(a)*r,y=Y+Math.sin(a)*r,b=a+PI/2+sr(-.4,.4),L=sr(90,190);
+      if(owFree(x,y,L/2+20,d))kWallRun(x-Math.cos(b)*L/2,y-Math.sin(b)*L/2,x+Math.cos(b)*L/2,y+Math.sin(b)*L/2,'fort',1)}
+    kRuinHall(X,Y-40);if(srand()<.75){const lp=LOREPOOL[(srand()*LOREPOOL.length)|0];kLore({x:X+80,y:Y+90,id:'r_'+d.k,t:lp[0],lines:lp[1],kind:'doc',once:'lore_r_'+d.k})}
+    C.packs.push({x:X,y:Y+170,t:packTypes(d.tier,4),R:300,done:false});owTrees(d,26,tk,320)}
+  else if(site==='lake'){const pw=sr(380,540),ph=sr(260,400),p={x0:X-pw/2,y0:Y-ph/2,x1:X+pw/2,y1:Y+ph/2};kPond(p);S.clear.push({x:X,y:p.y1+80,r:90});kPav({x:X,y:p.y1+80,w:110,d:70,name:d.name.ko});owTrees(d,36,tk,0);if(srand()<.5)owShrine(d,p.x0-70,Y)}
+  else{if(d.biome==='hills')for(let i=0;i<26;i++){const x=d.x0+sr(100,CS-100),y=d.y0+sr(100,CS-100),s=sr(.8,1.8);if(owFree(x,y,22*s,d))kRock(x,y,s)}
+    if(d.biome==='fields')owFields(d,C);owTrees(d,d.biome==='forest'?80:d.biome==='hills'?34:18,tk,0);
+    if(!d.clearHub){const np=srand()<.7?1+(srand()<.35):0;for(let i=0;i<np;i++)C.packs.push({x:d.x0+sr(260,CS-260),y:d.y0+sr(260,CS-260),t:packTypes(d.tier,3+(d.tier>>2)),R:300,done:false})}
+    if(srand()<.12)owShrine(d,X+sr(-220,220),Y+sr(-220,220))}
+  if(OW.rep[d.clan]<=-40&&(site==='village'||site==='town'||site==='seat'))C.packs.push({x:X,y:Y,t:['guard','guard','archer','archer'].concat(d.tier>6?['yangban']:[]),R:460,done:false,hostile:d.clan})}
+function owBuild(d){sg();M_=owMats(d.theme);B_=new Batch();RG=new Map();srand=seeded(d.cx*7919+d.cy*104729+OW.seed*31);
+  const C={d,grp:new T.Group(),lamps:[],fires:[],shrines:[],npcs:[],lore:[],water:[],bridges:[],islands:[],packs:[],marks:[],nests:[],disp:[],fields:[],plazas:[]};
+  const keys=['world','lamps','fires','shrines','water','npcs','lore','bridges','islands','marks','disp','clear','roads','mm'],sv={};for(const k of keys)sv[k]=S[k];
+  Object.assign(S,{world:C.grp,lamps:C.lamps,fires:C.fires,shrines:C.shrines,water:C.water,npcs:C.npcs,lore:C.lore,bridges:C.bridges,islands:C.islands,marks:C.marks,disp:C.disp,clear:[],roads:d.roads,mm:[]});
+  try{owContent(d,C);owGround(d,C);B_.build(C.grp,d.X,d.Y)}finally{for(const k of keys)S[k]=sv[k];if(RG)for(const g of RG.values())g.dispose();RG=null;B_=null;M_=null;srand=Math.random}
+  S.obs.length=0;OW.root.add(C.grp);return C}
+function owLoad(cx,cy){const d=descOf(cx,cy);if(OW.ch.has(d.k))return;OW.ch.set(d.k,owBuild(d))}
+function owUnload(k){const C=OW.ch.get(k);if(!C)return;OW.root.remove(C.grp);for(const x of C.disp)x.dispose();const i0=Math.round(C.d.x0/GS),j0=Math.round(C.d.y0/GS),n=CS/GS;
+  for(let i=i0;i<i0+n;i++)for(let j=j0;j<j0+n;j++)S.grid.delete(gk(i,j));OW.ch.delete(k);OW.dirty=true}
+function owRefresh(){const L=[...OW.ch.values()];for(const k of['lamps','fires','shrines','water','npcs','lore','bridges','islands','packs','marks'])S[k]=[].concat(...L.map(c=>c[k]));OW.nests=[].concat(...L.map(c=>c.nests))}
+function owStream(all){const[cx,cy]=chunkOf(P.x,P.y),need=[];for(let dy=-1;dy<=1;dy++)for(let dx=-1;dx<=1;dx++)if(!OW.ch.has((cx+dx)+','+(cy+dy)))need.push([cx+dx,cy+dy,Math.abs(dx)+Math.abs(dy)]);
+  need.sort((a,b)=>a[2]-b[2]);for(const n of need){owLoad(n[0],n[1]);if(!all)break}
+  for(const[k,C]of OW.ch)if(Math.max(Math.abs(C.d.cx-cx),Math.abs(C.d.cy-cy))>2)owUnload(k);
+  if(need.length||OW.dirty){owRefresh();OW.dirty=false}}
+function addQuest(q,silent){if(OW.quests.some(o=>o.id===q.id))return;q.si=q.si||0;q.done=false;OW.quests.push(q);if(q.main||!OW.track)OW.track=q.id;if(!silent)bark('nar','새 임무 · New quest: '+q.title);sfx(520,.25,'triangle',.05,260);owSave()}
+function owTracked(){return OW.quests.find(q=>q.id===OW.track&&!q.done)||OW.quests.find(q=>!q.done&&q.main)||OW.quests.find(q=>!q.done)||null}
+function qStage(q){if(!q)return null;while(q.si<q.stages.length&&q.stages[q.si].if&&!cond(q.stages[q.si].if))q.si++;return q.stages[q.si]||null}
+function owTarget(){const s=qStage(owTracked());return s&&s.x!==undefined?s:null}
+function advQuest(q){q.si++;S.ck={x:P.x,y:P.y};if(!qStage(q))finishQuest(q);else owSave()}
+function finishQuest(q){if(q.done)return;q.done=true;const rw=q.reward||{};for(const c in rw.rep||{})repAdd(c,rw.rep[c]);bark('nar','임무 완료 · Quest complete: '+q.title);sfx(660,.5,'triangle',.07,330);if(OW.track===q.id)OW.track=null;
+  const next=()=>{G.state='play';last=performance.now();if(q.after)q.after();owSave()};if(rw.picks)offerCards('임무 완료 · '+q.title,4,rw.picks,1,next);else next()}
+function owQuests(){for(const q of OW.quests){if(q.done)continue;const s=qStage(q);if(!s){finishQuest(q);return true}const d=Math.hypot(P.x-s.x,P.y-s.y);
+    if(s.pre&&!s.preDone&&d<(s.preR||(s.R||100)+150)){s.preDone=true;openTalk(s.pre,()=>{});return true}
+    if((s.t==='go'||s.t==='talk')&&d<(s.r||110)){if(s.lines)openTalk(s.lines,()=>advQuest(q));else{sfx(880,.2,'triangle',.05,200);advQuest(q)}return true}
+    if(s.t==='fight'&&!S.fight&&!S.pack&&d<s.R-30){s.onDone=()=>{if(s.post)openTalk(s.post,()=>advQuest(q));else advQuest(q)};startFight(s);return true}
+    if(s.t==='nest'&&OW.cleared.has(s.key)){advQuest(q);return true}
+    if(s.t==='flag'&&cond(s.f)){advQuest(q);return true}}return false}
+function owTick(dt){const p=P;owStream(false);const[cx,cy]=chunkOf(p.x,p.y),d=descOf(cx,cy);
+  if(OW.cur!==d){OW.cur=d;S.tier=d.tier;if(!OW.explored.has(d.k)){OW.explored.add(d.k);if(d.site!=='wild')bark('nar','발견 · '+d.name.ko+' · '+d.name.en+(d.site==='nest'?' — a blood nest':'')+'   ('+CLANS[d.clan].en+')')}
+    if(OW.theme!==d.theme){OW.theme=d.theme;STG.init=false;applyStage(OWST[d.theme])}}
+  if(S.pack){if(!G.queue.length&&!enemies.length){S.pack.done=true;S.pack=null;heal(12);addBlood(15);callout('정화','#ffd34d')}else if(Math.hypot(p.x-S.pack.x,p.y-S.pack.y)>1300){S.pack=null;G.queue=[];bark('seol','Lost them.')}return}
+  if(S.fight){fightTick(dt);return}
+  for(const s of S.shrines)if(!s.used&&Math.hypot(p.x-s.x,p.y-s.y)<44){useShrine(s);owSave();return}
+  if(loreCheck()||npcCheck()||owQuests())return;
+  for(const n of OW.nests){if(OW.cleared.has(n.key))continue;if(Math.hypot(p.x-n.x,p.y-n.y)<n.R-30){n.onDone=()=>{OW.cleared.add(n.key);owSave()};startFight(n);return}}
+  for(const k of S.packs)if(!k.done&&Math.hypot(p.x-k.x,p.y-k.y)<k.R*.8){startPack(k);if(k.hostile)bark('nar','The '+CLANS[k.hostile].en+' has not forgotten what you said about them.');return}
+  OW.saveT+=dt;if(OW.saveT>20){OW.saveT=0;owSave()}}
+function owSave(){if(!S.open||!P)return;const data={v:1,rep:OW.rep,flags:OW.flags,track:OW.track,cleared:[...OW.cleared],explored:[...OW.explored],ck:S.ck,ended:OW.ended,
+  quests:OW.quests.map(q=>q.main?{id:q.id,main:1,si:q.si,done:q.done,pd:q.stages.map(s=>!!s.preDone)}:JSON.parse(JSON.stringify(q))),
+  pl:{el:P.el,cur:P.cur,relics:G.relics.filter(n=>RELICS.some(r=>r.n===n)),blood:P.blood}};try{localStorage.setItem(OWSAVE,JSON.stringify(data))}catch(e){}}
+function owHasSave(){try{return!!localStorage.getItem(OWSAVE)}catch(e){return false}}
+function owLeave(){if(!S.open)return;owSave();for(const k of[...OW.ch.keys()])owUnload(k);if(OW.root)scene.remove(OW.root);for(const x of OW.mdisp)x.dispose();OW.mdisp=[];OW.mats={};OW.root=null;
+  S.open=false;S.world=null;S.flameM=null;S.grid=new Map();Object.assign(S,{lamps:[],fires:[],shrines:[],water:[],npcs:[],lore:[],bridges:[],islands:[],packs:[],marks:[],fight:null,pack:null,bark:null})}
+function owStart(fresh,k){if(!renderer)return;for(const id of['story','elem','menu','dead','chdone','reward','pause','talk','owm'])show(id,false);
+  if(S.open)owLeave();if(S.world){scene.remove(S.world);for(const x of S.disp)x.dispose();S.world=null}S.disp=[];purge();
+  let sv=null;if(!fresh){try{sv=JSON.parse(localStorage.getItem(OWSAVE)||'null')}catch(e){sv=null}}
+  G.mode='story';S.open=true;AW=AH=WCH*CS+200;AR.visible=false;S.ci=-1;S.ch={year:'1624',place:'열린 조선 · Open Joseon',title:'The Moon of Betrayal',ko:'배신의 달',steps:[]};
+  Object.assign(OW,{ch:new Map(),explored:new Set(),rep:{crane:0,tiger:0,plum:0,bell:0},quests:[],track:null,cleared:new Set(),flags:{},cur:null,theme:null,ended:false,nests:[],saveT:0,dirty:false});
+  S.grid=new Map();S.obs=[];Object.assign(S,{lamps:[],fires:[],shrines:[],water:[],npcs:[],lore:[],bridges:[],islands:[],packs:[],marks:[],fight:null,pack:null,talk:null,bark:null,big:false,rf:{},mini:null});
+  OW.root=new T.Group();scene.add(OW.root);S.world=OW.root;sg();
+  {const s2=S.disp;S.disp=OW.mdisp;const t=detailTex();t.repeat.set(CS/150,CS/150);OW.detM=new T.MeshBasicMaterial({map:t,transparent:true,depthWrite:false});OW.mdisp.push(OW.detM);S.disp=s2}
+  for(const t in OWST)STAGES[OWST[t]]=OWL[t];
+  P=makePlayer();G.relics=[];G.kills=0;G.score=0;G.bestCombo=0;enemies=[];shots=[];rings=[];parts=[];texts=[];slashes=[];G.zones=[];G.bolts=[];G.queue=[];G.timers=[];G.slow=0;G.stop=0;G.shake=0;G.hurtFx=0;G.impact=0;G.call=null;
+  let st=at(0,1,0,140);
+  if(sv){Object.assign(OW.rep,sv.rep||{});OW.flags=sv.flags||{};OW.cleared=new Set(sv.cleared||[]);OW.explored=new Set(sv.explored||[]);OW.ended=!!sv.ended;
+    for(const q of sv.quests||[]){let o;if(q.main){if(!MAINQ[q.id])continue;o=MAINQ[q.id]();o.si=q.si;o.done=q.done;(q.pd||[]).forEach((v,i)=>{if(o.stages[i])o.stages[i].preDone=v})}else o=q;OW.quests.push(o)}OW.track=sv.track;
+    const pl=sv.pl||{};if(pl.el)Object.assign(P.el,pl.el);P.cur=pl.cur||EK.find(q=>P.el[q]>0)||null;for(const n of pl.relics||[]){const r=RELICS.find(x=>x.n===n);if(r){r.f(P);G.relics.push(n)}}P.blood=pl.blood||0;if(sv.ck)st=sv.ck}
+  else{if(k){P.el[k]=1;P.cur=k}addQuest(MAINQ.m1(),true)}
+  Object.assign(P,{x:st.x,y:st.y,_wx:st.x,_wy:st.y,facing:-PI/2,hp:P.maxHp,st:P.maxSt,iframes:1});S.ck={x:st.x,y:st.y};cam.x=P.x;cam.y=P.y;
+  owStream(true);const d=descOf(...chunkOf(P.x,P.y));OW.cur=d;OW.explored.add(d.k);OW.theme=d.theme;STG.init=false;applyStage(OWST[d.theme]);S.tier=d.tier;setTier(2);
+  if(!S.barrier)buildBarrier();S.t0=G.time;S.k0=G.kills;$('retry').textContent='혈맥 · RISE AT THE LAST SHRINE';
+  G.banner={text:'1624 · 열린 조선',sub:sv?'Welcome back. Your quests are in the pause menu.':'Open Joseon — The Moon of Betrayal',t:0};G.state='play';last=performance.now();owSave()}
+function buildBarrier(){const[c,g]=cvs(512,64);for(let i=0;i<16;i++){g.fillStyle='rgba(255,40,60,.85)';g.fillRect(i*32+8,4,16,56);g.fillStyle='rgba(255,226,140,.95)';g.fillRect(i*32+11,10,10,3);g.fillRect(i*32+14,16,4,34);g.fillRect(i*32+11,40,10,3)}
+  const t=texOf(c);t.wrapS=T.RepeatWrapping;t.repeat.set(5,1);S.barrier=new T.Mesh(SG.beam,new T.MeshBasicMaterial({map:t,color:0xff4058,transparent:true,opacity:.6,blending:T.AdditiveBlending,depthWrite:false,side:T.DoubleSide}));
+  S.barrier.visible=false;scene.add(S.barrier);S.beam=new T.Mesh(SG.beam,new T.MeshBasicMaterial({color:0xffd34d,transparent:true,opacity:.2,blending:T.AdditiveBlending,depthWrite:false,side:T.DoubleSide}));S.beam.scale.set(10,700,10);S.beam.visible=false;scene.add(S.beam)}
+function owJournal(){const tr=owTracked(),act=OW.quests.filter(q=>!q.done);let h='<b>1624 · 열린 조선</b>'+(OW.cur?' — '+OW.cur.name.ko+' · '+OW.cur.name.en+' ('+CLANS[OW.cur.clan].en+')':'');
+  h+='<div style="text-align:left;font-size:13px;line-height:1.45;margin:10px 0 0">';
+  for(const q of act){const s=qStage(q),on=tr&&q.id===tr.id;h+='<button class="jq'+(on?' on':'')+'" data-q="'+q.id+'">'+(on?'▶ ':'')+'<b>'+q.title+'</b>'+(s&&s.label?'<br><span>'+s.label+'</span>':'')+'</button>'}
+  if(!act.length)h+='No open quests. Notice boards 榜 in villages and towns post bounties.<br>';
+  h+='<div style="opacity:.75;margin:8px 0">'+OW.quests.filter(q=>q.done).length+' quests complete · '+OW.explored.size+' places explored · '+OW.cleared.size+' nests burned</div>';
+  for(const c of['crane','tiger','plum','bell']){const v=OW.rep[c];h+='<div class="rep"><span>'+CLANS[c].ko+' · '+CLANS[c].en+'</span><i><b style="width:'+((v+100)/2)+'%;background:'+(v<=-40?'#a8242e':v<40?'#8a7a5a':'#2f7d5b')+'"></b></i><em>'+repWord(v)+'</em></div>'}
+  return h+'</div><span style="font-size:12px">Tap a quest to track it.</span>'}
+const MAPC={spring:{forest:'#26331f',fields:'#3b4a2c',hills:'#3a3a2e'},snow:{forest:'#7d8aa0',fields:'#a9b4c8',hills:'#8f98aa'},autumn:{forest:'#4a3a1e',fields:'#6a5a2c',hills:'#4e4630'},palace:{forest:'#3a1418',fields:'#4a1c20',hills:'#3a1a1c'}};
+function owMap(){const big=S.big,mw=big?Math.min(W*.92,H*.84):(W<600?112:160),mh=mw,x=big?(W-mw)/2:W-mw-14,y=big?(H-mh)/2:50,R=big?CS*6.5:CS*1.6,k=mw/(2*R),p=P;S.mmR={x,y,w:mw,h:mh};
+  if(big){ctx.fillStyle='rgba(6,4,10,.72)';ctx.fillRect(0,0,W,H)}ctx.save();ctx.beginPath();ctx.rect(x,y,mw,mh);ctx.clip();ctx.fillStyle='#0c0a10';ctx.fillRect(x,y,mw,mh);
+  const X=v=>x+mw/2+(v-p.x)*k,Y=v=>y+mh/2+(v-p.y)*k,[pcx,pcy]=chunkOf(p.x,p.y),n=Math.ceil(R/CS)+1,vis=[];
+  for(let dy=-n;dy<=n;dy++)for(let dx=-n;dx<=n;dx++){const key=(pcx+dx)+','+(pcy+dy);if(!OW.explored.has(key))continue;const d=descOf(pcx+dx,pcy+dy);vis.push(d);ctx.fillStyle=MAPC[d.theme][d.biome];ctx.fillRect(X(d.x0),Y(d.y0),CS*k+.6,CS*k+.6)}
+  ctx.strokeStyle='#a89870';ctx.lineWidth=Math.max(1,70*k);ctx.lineCap='round';for(const d of vis)for(const r of d.roads){ctx.beginPath();ctx.moveTo(X(r.pts[0][0]),Y(r.pts[0][1]));ctx.lineTo(X(r.pts[1][0]),Y(r.pts[1][1]));ctx.stroke()}
+  const s=Math.max(2.5,big?5:3);for(const d of vis){const hx=X(d.hx),hy=Y(d.hy);
+    if(d.site==='capital'){rr(hx-s*1.6,hy-s*1.6,s*3.2,s*3.2,'#c8243a');ring(hx,hy,s*2.6,'#e9c66a',1.2,1)}
+    else if(d.site==='seat')diamond(hx,hy,s*1.8,CLANS[d.clan].col);else if(d.site==='town')rr(hx-s,hy-s,s*2,s*2,'#cdbf9c');else if(d.site==='village')rr(hx-s*.7,hy-s*.7,s*1.4,s*1.4,'#b0a282');
+    else if(d.site==='temple')circ(hx,hy,s,'#4ab8a8');else if(d.site==='lake'){ctx.fillStyle='#2a5a80';ctx.fillRect(hx-s*1.4,hy-s,s*2.8,s*2)}else if(d.site==='camp')diamond(hx,hy,s*1.3,'#d9a521');
+    else if(d.site==='nest'||d.site==='lair'){ctx.strokeStyle=OW.cleared.has(d.k)?'#6a5a5a':'#ff3048';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(hx-s,hy-s);ctx.lineTo(hx+s,hy+s);ctx.moveTo(hx+s,hy-s);ctx.lineTo(hx-s,hy+s);ctx.stroke()}
+    else if(d.site==='ruins')circ(hx,hy,s*.8,'#7a6a5a')}
+  for(const sh of S.shrines)if(!sh.used)diamond(X(sh.x),Y(sh.y),big?5:3,'#7de8ff');for(const L of S.lore)if(!L.used&&cond(L.need))diamond(X(L.x),Y(L.y),big?4:2.5,L.kind==='mem'?'#ff3048':'#9fb8ff');
+  if(S.fight)ring(X(S.fight.x),Y(S.fight.y),Math.max(3,S.fight.R*k),'#ff3048',1.5,.9);for(const e of enemies)if(!e.dead)circ(X(e.x),Y(e.y),e.boss?3.5:1.8,'#ff3048');
+  for(const q of OW.quests){if(q.done)continue;const st=qStage(q);if(!st||st.x===undefined)continue;const tr=q===owTracked();
+    if(guide==='full'&&tr){diamond(X(st.x),Y(st.y),(big?8:5)+1.5,'#0b0910');diamond(X(st.x),Y(st.y),big?8:5,'#ffd34d')}else{hintOf(st);ctx.setLineDash([4,3]);ring(X(st.hx),Y(st.hy),Math.max(5,st.hr*k),tr?'#ffd34d':'rgba(255,211,77,.45)',tr?1.6:1,tr?.9:.6);ctx.setLineDash([])}}
+  if(big){ctx.textAlign='center';ctx.font='11px "Gowun Batang",Georgia,serif';for(const d of vis){if(d.site==='wild')continue;ctx.fillStyle='#000';ctx.fillText(d.name.en,X(d.hx)+1,Y(d.hy)-9);ctx.fillStyle='#f0e4cc';ctx.fillText(d.name.en,X(d.hx),Y(d.hy)-10)}}
+  ctx.save();ctx.translate(mw/2+x,mh/2+y);ctx.rotate(p.facing);const ps=big?1.6:1;ctx.fillStyle='#fff';ctx.strokeStyle='#0b0910';ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(7*ps,0);ctx.lineTo(-4*ps,-5*ps);ctx.lineTo(-4*ps,5*ps);ctx.closePath();ctx.stroke();ctx.fill();ctx.restore();
+  ctx.restore();ctx.strokeStyle='#c9a35a';ctx.lineWidth=1.5;ctx.strokeRect(x-1,y-1,mw+2,mh+2);
+  if(big){ctx.textAlign='center';ctx.font='15px "Gowun Batang",Georgia,serif';ctx.fillStyle='#f0e4cc';ctx.fillText('1624 · 열린 조선 — '+OW.explored.size+' places explored',W/2,y-12);ctx.font='12px "Gowun Batang",Georgia,serif';ctx.fillStyle='#c9a35a';
+    ctx.fillText('◌ quest search area   ■ town / village   ◆ clan seat   ✕ blood nest   ◇ shrine   —   '+(touchMode?'tap':'M or click')+' to close',W/2,y+mh+20)}}
+function owHUD(){const p=P,lab=objLabel(),extra=[];const n=OW.quests.filter(x=>!x.done).length;if(!S.fight&&n>1)extra.push((n-1)+' other quest'+(n>2?'s':'')+' · pause to switch');
+  objBox(lab||'Explore. Notice boards 榜 post bounties.',extra);
+  const o=objTarget();if(o&&!S.fight&&G.state==='play'&&!S.big&&guide==='full')screenArrow(o,Math.max(0,Math.round(Math.hypot(o.x-p.x,o.y-p.y)/20))+'m');
+  for(const q of OW.quests){if(q.done)continue;const s=qStage(q);if(!s||s.t!=='talk')continue;const dx=s.x-p.x,dy=s.y-p.y;if(dx*dx+dy*dy>640000)continue;const[x,y]=proj(s.x,70,s.y),b=Math.sin(G.time*3)*2;
+    ctx.fillStyle='rgba(10,8,12,.78)';ctx.beginPath();ctx.arc(x,y+b,12,0,TAU);ctx.fill();ctx.strokeStyle='#ffd34d';ctx.lineWidth=2;ctx.stroke();ctx.textAlign='center';ctx.font='700 15px "Gowun Batang",Georgia,serif';ctx.fillStyle='#ffd34d';ctx.fillText('!',x,y+b+5)}
+  owMap()}
 /* ---------- characters: articulated rigs ---------- */
 let AT=0,adt=0,lastR=performance.now();
 const GC={};function gq(k,f){return GC[k]||(GC[k]=f())}
@@ -1792,10 +2254,14 @@ $('start').addEventListener('click',()=>{audioOn();pickElem()});
 $('retry').addEventListener('click',()=>{audioOn();if(G.mode==='story')storyRevive();else pickElem()});
 $('dMenu').addEventListener('click',()=>toMenu());$('pMenu').addEventListener('click',()=>toMenu());
 $('storyB').addEventListener('click',()=>{audioOn();openStory()});$('storyBack').addEventListener('click',()=>{show('story',false);show('menu',true)});
-$('cdMenu').addEventListener('click',()=>{show('chdone',false);toMenu();openStory()});$('cdNext').addEventListener('click',()=>{audioOn();show('chdone',false);startChapter(S.ci+1,false)});
+$('cdMenu').addEventListener('click',()=>{show('chdone',false);toMenu();openStory()});$('cdNext').addEventListener('click',()=>{audioOn();show('chdone',false);if(S.open){G.state='play';last=performance.now();return}startChapter(S.ci+1,false)});
+$('owB').addEventListener('click',()=>{audioOn();if(owHasSave()){$('owCont').hidden=false;show('menu',false);show('owm',true)}else pickElem(k=>owStart(true,k))});
+$('owCont').addEventListener('click',()=>{audioOn();owStart(false)});$('owNew').addEventListener('click',()=>{audioOn();show('owm',false);pickElem(k=>owStart(true,k))});$('owBack').addEventListener('click',()=>{show('owm',false);show('menu',true)});
+$('pGuide').addEventListener('click',()=>{guide=guide==='full'?'light':'full';try{localStorage.setItem('hyeolwol_guide',guide)}catch(e){}$('pstats').innerHTML=storyPauseText()});
+$('pstats').addEventListener('click',e=>{const b=e.target.closest('[data-q]');if(!b||!S.open)return;OW.track=b.dataset.q;$('pstats').innerHTML=storyPauseText()});
 $('talk').addEventListener('pointerdown',e=>{e.preventDefault();audioOn();advTalk()});
 $('resume').addEventListener('click',()=>togglePause());
-window.__hw={G,get P(){return P},get enemies(){return enemies},inp,keys,S,startChapter,CHAPTERS,get renderer(){return renderer},dbg:{blocked,inWater},tick(dt){if(G.state==='play')update(dt);else if(G.state==='talk')talkTick(dt);render()},advTalk};
+window.__hw={G,OW,owStart,owSave,descOf,chunkOf,at,pickChoice,get P(){return P},get enemies(){return enemies},inp,keys,S,startChapter,CHAPTERS,get renderer(){return renderer},dbg:{blocked,inWater},tick(dt){if(G.state==='play')update(dt);else if(G.state==='talk')talkTick(dt);render()},advTalk};
 if(!initGL()){$('start').disabled=true;$('best').textContent='WebGL is not available in this browser, so the 3D view cannot start.'}
 try{document.fonts.load('30px "Nanum Brush Script"','혈월완벽막기자세붕괴분노혈왕제야PERFECTARYBROKENENRAGED The Blood King Night 123456789·');document.fonts.load('700 14px "Gowun Batang"','혈월혈왕 CRITICAL READY')}catch(e){}
 requestAnimationFrame(frame);

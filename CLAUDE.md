@@ -1,6 +1,6 @@
 # Working on Hyeolwol
 
-Single-file browser game: everything lives in `index.html` (about 1,800 long lines, one IIFE).
+Single-file browser game: everything lives in `index.html` (about 2,300 long lines, one IIFE).
 No build, no dependencies beyond the vendored `three.min.js` (r128, global `THREE`, aliased `T`).
 Fonts come from Google Fonts (Gowun Batang, Nanum Brush Script) with serif fallbacks.
 
@@ -24,6 +24,8 @@ Fonts come from Google Fonts (Gowun Batang, Nanum Brush Script) with serif fallb
 | story mode: world builder | `THEMES`, `storyMats`, `paintGround`, `buildMini`, `buildStory` |
 | story mode: runtime | `startChapter`, step machine `storyTick` (`talk`/`go`/`fight`/`dawn`/`end`), fights and waves, ambush packs, shrines, dialogue (`openTalk`/`advTalk`), `storyHUD` (objective, arrow, minimap) |
 | story mode: chapters | `CHAPTERS` data: map size, walls and gates, roads, rivers, halls, villages, shrines, ambushes, steps and dialogue |
+| story: dialogue and NPCs | flags (`flag`/`setFlag`/`cond`; `lore_*`/`mem*` persist, the rest are per run), `openTalk`/`showLine` (lines `[speaker, text, cond]`, `{set}`, `{rep}`, `{choice:{q,opts:[[label, flag, lines, fn, cond]]}}`), `bark`, `kNPC` + `npcCheck` (variants with `if`), `kLore` + `loreCheck`, guidance (`guide`) |
+| open world | `OW` state, `descOf` (deterministic chunk description: site, biome, clan, roads, name), `FIXED`/`FIXED_BUILD` authored places, `owContent`/`owBuild` (chunk meshes, origin-relative), `owStream` (3×3 loaded, unload past 2), clans and `repAdd`, bounties `genBounties`, quest engine (`addQuest`, `qStage`, `owQuests`, `finishQuest`), `MAINQ` main storyline, `owSave`/`owStart`, `owMap`, `owJournal` |
 
 ## Story mode notes
 
@@ -33,6 +35,13 @@ Fonts come from Google Fonts (Gowun Batang, Nanum Brush Script) with serif fallb
 - Placement uses a seeded RNG per chapter (`srand`), so a chapter's layout is the same every time.
 - The four arena lamp lights are reused in story mode and move each frame to the four lamp spots nearest the camera.
 - `__hw.startChapter(i, fresh, element)`, `__hw.tick(dt)`, `__hw.advTalk()` and `__hw.dbg.{blocked,inWater}` exist for scripted tests. Story progress is kept in `localStorage` (`hyeolwol_story`).
+
+## Open world notes
+
+- Open world runs inside story mode (`G.mode==='story'`, `S.open===true`), so `storyPhys`, fights, packs, shrines and death reuse the chapter code.
+- Chunks are 1400 units and their edges sit on the 200-unit obstacle grid; keep every obstacle at least 70 units inside its chunk so unloading a chunk can delete its grid cells.
+- Quest stages: `go`, `talk` (with `lines`), `fight` (`waves`, `R`, `r` tier, `pre`, `post`, `barks`, `taunts`), `nest` (completes when that nest is burned), `flag` (completes when a flag is set). A stage with `if` is skipped when its condition fails.
+- Saves live in `localStorage` under `hyeolwol_open`. Main quests are saved by id and stage index and rebuilt from `MAINQ`; bounties are saved as data.
 
 ## Conventions
 

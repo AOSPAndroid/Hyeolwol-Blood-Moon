@@ -4,6 +4,19 @@ A top-down action roguelike set in Joseon Korea. You play a half-vampire hunter 
 court of gangshi, vampire nobles and ghosts with timed parries, perfect dodges, combo strings,
 air juggles and four swappable elements. Rendered in three.js with a cel-shaded, ink-and-woodblock look.
 
+## Open world · 열린 조선
+
+The main mode. Joseon in 1624, a year after a palace coup. The world is generated in chunks as you walk
+(about 280 km of map in every direction) with villages, walled towns, temples, ponds, ruins and blood nests.
+
+- **Four Houses** split the land: the Crane (court, west), the Tiger (northern border), the Plum (southern trade) and the
+  Circle of Bells (shrines, east). Each tracks your reputation; at −40 a House turns hostile and its guards attack you in its towns.
+- **Main story, 배신의 달 · The Moon of Betrayal:** find which House feeds the Blood Court. Dialogue choices decide whom you
+  accuse, whether a traitor captain lives, and whether you talk a rebel general down or kill him; the ending reflects them.
+- **Bounties** on every notice board 榜, rumors from villagers, a side story about a corrupt steward, and readable records in ruins.
+- **Light guidance** by default: the map shows a search area, not a pin. Switch to full guidance (arrow and beam) in the pause menu.
+- Progress saves automatically and from shrines; **Continue** picks it up.
+
 ## Story mode
 
 Five chapters across the Joseon dynasty (1392–1897), each on a large explorable map with walled fortresses,
@@ -44,7 +57,9 @@ When you ship a change, bump `CACHE` in `sw.js` so installed copies update.
 | Blood Art | E / Shift | 혈 |
 | Swap element | Q / Tab | 원 |
 | Pause (full move list) | Esc / P | II |
-| Full map (story) | M / click minimap | tap minimap |
+| Full map (story, open world) | M / click minimap | tap minimap |
+| Dialogue choice | 1–9 / click | tap |
+| Quest journal, guidance | Esc (pause menu) | II |
 | Advance dialogue | Space / Enter / click | tap |
 
 ## Files
