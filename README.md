@@ -37,6 +37,9 @@ your respawn point. Press M or tap the minimap for the full map.
 
 ## Play
 
+**Online (installable PWA):** https://aospandroid.github.io/Hyeolwol-Blood-Moon/
+On a phone, open it and choose "Install app" (Android) or Share → "Add to Home Screen" (iPhone). It works offline after the first visit.
+
 It is a static site with no build step.
 
 ```sh
