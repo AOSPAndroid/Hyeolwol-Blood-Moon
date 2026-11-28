@@ -145,7 +145,18 @@ highlights, the corners fall away, and a trace of grain is added. Characters and
 shimmers, the ground has pebbles and worn roads, and fireflies drift at night. Outdoor maps are covered in swaying grass with a
 few flowers, tinted by season. The pause menu has a switch for the glow and grading if a device struggles.
 
+## On the road
+
+The hunter can swim: rivers and ponds are slower, with no attacks or arts, and the dead cannot follow you in.
+Out in the wilds, roadside events find you: a caravan under attack, a wandering duelist, a blood altar to survive,
+spirit lanterns to catch before they fade, and hidden caches. Each is marked by a pillar of light and an arrow.
+
 ## Sandbox · 모래판
+
+The **Practice** tab keeps a chosen number of foes on the field (mixed, melee, ranged, elite kinds or bosses one at
+a time), places a training dummy that shows your damage per second, and keeps a scoreboard of waves, kills, parries
+and perfect dodges.
+
 
 Free play with no objectives and no saves. It opens in a village built to be broken: houses, a magistrate's compound, a pond and over two hundred jars, crates and barrels. **T** (or the panel) restores everything broken. Press B (or the 모래 · SANDBOX button) for the panel:
 switch to any arena stage, story chapter map or the open world; spawn any foe, a boss or a random wave; toggle

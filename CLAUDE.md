@@ -145,6 +145,14 @@ Fonts come from Google Fonts (Gowun Batang, Nanum Brush Script) with serif fallb
 - Painted effect textures are built once on first use through `tx()`; `texDisc(map,opacity,additive)` makes a flat textured disc.
 - Awakened (element level III): `awakenRender` turns the element's crest underfoot, draws a rising-wisp aura sprite (`auraTex`) tinted by the element, and emits element-specific motes.
 
+## Swimming, practice, roadside events, frame rate
+
+- Swimming: `storyPhys` no longer pushes the player out of water (foes still are). `swimPre` (before `updPlayer`) sets `P.swim`/`P.swimK`, blocks attacks, parries and arts, pauses stamina regeneration, and turns a dodge press into a stroke (`P.stroke`); `swimSpeed()` scales idle movement. `updPlayerM` sinks the model and poses a stroke.
+- Practice (sandbox tab `prac`): `G.prac` holds the pool, field size and scoreboard; `pracTick` (from `sbxTick`) keeps the field full from `PRAC_POOLS`, and a training dummy (`e.dummy`, skipped by `updEnemy`) refills its health and feeds a 5-second DPS window. `pracHUD` draws the scoreboard. Parries and perfect dodges are counted in `strikePlayer` and `perfect`.
+- Roadside events: `OW.ev` is one event at a time (`caravan`, `duel`, `altar`, `lantern`, `cache`, in `OWEV`), spawned by `evSpawn` every 45–80 s in wild, lake, ruin and camp chunks, ahead of the player. `evTick` runs from `owTick`; caravan, duel and altar reuse packs (`startPack`), the duelist is spawned directly with 3.2× health. `evRender` draws the light pillar, crest and lanterns; `evHUD` the edge arrow and lantern timer. Events are not saved.
+- Wind Grand Art: an instant gust on release (cone in front, damage and launch) plus the tornado.
+- Frame rate: `frame` is uncapped by default (follows the display); `FPSCAP` (pause menu, `hyeolwol_fpscap`) caps at 60 or 30. Camera follow and slow-motion tint are time-based, so they look the same at any refresh rate.
+
 ## Sandbox notes
 
 - The sandbox panel is tabbed (`sbxTab`: map, foe, rule, gear, rel; `tab:` actions in `sbxAct`). Only `.spage` scrolls, and only on short screens.
