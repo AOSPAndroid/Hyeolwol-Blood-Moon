@@ -17,6 +17,31 @@ The main mode. Joseon in 1624, a year after a palace coup. The world is generate
 - **Light guidance** by default: the map shows a search area, not a pin. Switch to full guidance (arrow and beam) in the pause menu.
 - Progress saves automatically and from shrines; **Continue** picks it up.
 
+## Secret Arts · 비술
+
+A second ability, held and let go: **F**, the mouse wheel button, or the 술 button on touch. **1–4** or **R**
+(the 택 button) picks the art. Every art costs blood.
+
+| Art | What it does |
+| --- | --- |
+| 대술 · Grand Art | Gathers your current element while held. Fire: an explosion at the aim point that leaves a crater. Water: a frost stream that soaks and freezes. Wind: a tornado that follows your aim and throws foes up. Lightning: a volley of strikes. |
+| 혈와 · Blood Vortex | Opens a singularity that drags foes (and loose debris) in while held, then bursts when let go. |
+| 시간 · Time | Tap: stop time for 3.5 seconds. Foes and their projectiles freeze, you keep moving, and your blows land when time resumes. Hold: wind the fight back, restoring your position and health. |
+| 일섬 · The Cleave | Time stops while held. Drag a line with the mouse (or aim with the stick) and let go: one cut through every foe, projectile and breakable on it. |
+
+The world breaks: jars, crates and barrels shatter into tumbling pieces under a blade, a roll, a thrown foe or
+any blast, and sometimes give blood or health. Big attacks leave craters, scorch marks and gashes for a while.
+
+These were inspired by the spells of *Small Magic* by blendi on Patch (time, the Cleave, the singularity,
+the tornado, ground that breaks). No code or assets from it are used here.
+
+## Sandbox · 모래판
+
+Free play with no objectives and no saves. Press B (or the 모래 · SANDBOX button) for the panel:
+switch to any arena stage, story chapter map or the open world; spawn any foe, a boss or a random wave; toggle
+god mode, infinite blood and frozen foes; set game speed, foe tier and element levels; add any talisman.
+Dying in the sandbox puts you straight back on your feet.
+
 ## Story mode
 
 Five chapters across the Joseon dynasty (1392–1897), each on a large explorable map with walled fortresses,

@@ -1,6 +1,6 @@
 # Working on Hyeolwol
 
-Single-file browser game: everything lives in `index.html` (about 2,300 long lines, one IIFE).
+Single-file browser game: everything lives in `index.html` (about 2,400 long lines, one IIFE).
 No build, no dependencies beyond the vendored `three.min.js` (r128, global `THREE`, aliased `T`).
 Fonts come from Google Fonts (Gowun Batang, Nanum Brush Script) with serif fallbacks.
 
@@ -42,6 +42,20 @@ Fonts come from Google Fonts (Gowun Batang, Nanum Brush Script) with serif fallb
 - Chunks are 1400 units and their edges sit on the 200-unit obstacle grid; keep every obstacle at least 70 units inside its chunk so unloading a chunk can delete its grid cells.
 - Quest stages: `go`, `talk` (with `lines`), `fight` (`waves`, `R`, `r` tier, `pre`, `post`, `barks`, `taunts`), `nest` (completes when that nest is burned), `flag` (completes when a flag is set). A stage with `if` is skipped when its condition fails.
 - Saves live in `localStorage` under `hyeolwol_open`. Main quests are saved by id and stage index and rebuilt from `MAINQ`; bounties are saved as data.
+
+## Secret arts and breakables
+
+- Section `secret arts (비술) and the breakable world`: `ARTS`, state `A`, `artBegin`/`artHold`/`artRelease` (press, hold, let go), `artsTick` (called from `update` after `updPlayer`), `artsRender`, `artsHUD`, `artsReset`.
+- Input: `inp.pS` (pressed), `inp.hS` (held), `inp.pC` (cycle). An art ends when `inp.hS` goes false.
+- Time: `G.tstop>0` freezes enemies, hostile shots and rings, timers and particles (`update` runs them with `dt=0` or skips them); the player runs on real dt. `G.thold` keeps it frozen while the Cleave is aimed or the rewind runs. The rewind pops `A.hist` snapshots (player position and health, enemy positions and health, every 0.1 s, 6 s kept).
+- Breakables: `props` (`{x,y,kind,r,rot,dead}`), broken through `breakProp`. `doHit` calls `hitProps`, `aoe` calls `breakProps`, `propsPhys` handles collisions. Arena gets them in `nextRoom` (`arenaProps`), chapters in `buildStory` (`storyProps`), open-world chunks own theirs (`C.props`, merged in `owRefresh`).
+- `debris` is drawn with one `InstancedMesh`; `scars` (crater, scorch, gash) are ground decals that fade; `twisters`, `booms` are short-lived effects. All are plain arrays synced to meshes in `artsRender`.
+- The ideas came from Small Magic (Patch licence, cannot leave Patch): never copy its code or assets into this repo.
+
+## Sandbox notes
+
+- `G.sandbox` marks sandbox play; `toMenu` clears it. It runs on top of the other modes: `sbxGo` switches the map while keeping the player (`a0`–`a2` arena stages, `c0`–`c4` chapter maps with `S.step=999` so no script runs, `ow` open world with no main quest).
+- `G.god`, `G.infBlood`, `G.freezeAI` and `G.tsc` (game speed) are read in `update`/`frame`/`sbxTick`. `die()` revives instantly in the sandbox, and `owSave` never writes from it.
 
 ## Conventions
 
