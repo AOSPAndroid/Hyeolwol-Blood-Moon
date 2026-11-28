@@ -80,6 +80,13 @@ any blast, and sometimes give blood or health. Big attacks leave craters, scorch
 These were inspired by the spells of *Small Magic* by blendi on Patch (time, the Cleave, the singularity,
 the tornado, ground that breaks). No code or assets from it are used here.
 
+## The picture
+
+The scene is drawn to an off-screen image and finished in one pass: bright things (lanterns, flames, slashes, rune
+circles) glow a little into what is around them, colours are graded for contrast with cool shadows and warm
+highlights, the corners fall away, and a trace of grain is added. Outdoor maps are covered in swaying grass with a
+few flowers, tinted by season. The pause menu has a switch for the glow and grading if a device struggles.
+
 ## Sandbox · 모래판
 
 Free play with no objectives and no saves. It opens in a village built to be broken: houses, a magistrate's compound, a pond and over two hundred jars, crates and barrels. **T** (or the panel) restores everything broken. Press B (or the 모래 · SANDBOX button) for the panel:

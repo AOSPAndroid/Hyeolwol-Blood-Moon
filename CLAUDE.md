@@ -68,6 +68,12 @@ Fonts come from Google Fonts (Gowun Batang, Nanum Brush Script) with serif fallb
 - `weaponLift` runs after `updPlayerM` and rotates the weapon so its point never goes under the floor.
 - Arts added in `ART2` (`legion`, `starfall`, `chain`): each has `cast(c)` and optionally `hold(dt)`. Ultimates: holding a Grand Art past 2.2 s sets `A.ult`; release calls `castUlt(k,sc)`. `arts2Tick` runs tidal waves and chain timers, `arts2Render` the casting aura.
 
+## Finishing pass and grass
+
+- `postRender` replaces the direct `renderer.render`: scene into `POST.rt` (multisampled on WebGL2), a bright pass and three or four half-size blurs (`mDown`), then `mFinal` (glow, saturation, S-curve, split tone, vignette, gamma, grain). The targets are linear, so `mFinal` applies gamma itself. `POST.on` (pause menu, `localStorage` `hyeolwol_fx`) falls back to the direct render, as does any error.
+- Glow only takes what is brighter than 0.9 in luminance. Pale materials under lamps flare, so keep new materials below that or expect them to glow.
+- `addGrass` scatters instanced tufts (one shared geometry and material, wind sway in the vertex shader, time in `grassU`) in 700-unit tiles so off-screen tiles are culled. Chapters call it from `buildStory`, open-world chunks from `owBuild`; the arena has none.
+
 ## Sandbox notes
 
 - `G.sandbox` marks sandbox play; `toMenu` clears it. It runs on top of the other modes: `sbxGo` switches the map while keeping the player (`a0`–`a2` arena stages, `c0`–`c4` chapter maps with `S.step=999` so no script runs, `ow` open world with no main quest).
