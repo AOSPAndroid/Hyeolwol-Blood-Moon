@@ -46,12 +46,38 @@ Stone Colossus (splits into two when slain).
 **Talismans:** 34 in all. The newer ones add rules rather than numbers: a shade that repeats finishers, lightning on
 every tenth hit, breakables that burst, executions that stop time, thorns, and more.
 
-Cuts are painted in a bold woodblock manner. Every element shares one recipe (a thick banded body, big outlined
-clumps along its edge, small pieces flying off) with its own ornaments: water foam, flame clusters, wind curls,
-lightning forks, rocks, venom bubbles and drips, moon crescents, leaves and blossoms.
+Cuts are painted in a bold woodblock manner, with a different silhouette for each element: a banded wave with foam,
+flame tongues, loose wind swooshes, a jagged bolt, broken rock slabs, dripping ooze, a thin crescent with little moons,
+a flowering vine, and ice crystals.
 
 A combo display shows the hit count and its timer, your style rank and progress to the next, and the five steps of
 the attack string with the hold-finisher available at each.
+
+## Element forms · 형
+
+Each element has three named techniques, on **8**, **9** and **0** (then **F**, or pick with **R**). They are cast with a
+tap, cost blood, and make you untouchable while they play.
+
+| Element | Forms |
+| --- | --- |
+| Water | Ripple Cut · Water Wheel (a rolling chain of cuts) · Flowing Dragon (six weaving cuts between foes) |
+| Fire | Flame Wheel · Sunrise Arc (a rising launcher) · Ember Step (a dash that leaves fire) |
+| Wind | Gale Rush (three zigzag dashes) · Rising Cyclone · Wind Fan (five flying blades) |
+| Lightning | Thunderflash (an instant line dash) · Sixfold Strike (blink between six foes) · Thunder Lance |
+| Earth | Rockslide (a line of stone spikes) · Iron Stance (take 70% less, daze attackers) · Earth Splitter (a leaping slam) |
+| Venom | Viper Fang · Mist Step (vanish and strike from behind) · Serpent Lash |
+| Moon | Crescent Trio · Moon Halo (orbiting blades that shred projectiles) · Full Moon |
+| Wood | Vine Snare (drag foes together) · Thorn Thicket · Petal Storm (a healing whirl) |
+| Snow | Icicle Lance · Snow Step (a dash that leaves a blizzard) · Frost Bloom (a ring of ice that freezes) |
+
+**Snow** is the ninth element: hits chill and slow, the fifth freezes; its Grand Art is a blizzard and its Ultimate,
+Absolute Zero, freezes everything nearby. Chilled + Fire thaws in a burst; Soaked + Snow flash-freezes.
+
+**Paired elements:** you can hold three. The element you swapped from rides along on every swing: its painted cut is
+drawn inside the main one and it adds its own effect, so fire with venom burns and poisons (and sets off their reaction).
+
+**Charged attacks** (hold attack, release on the flash) differ by weapon: Quick Draw, Flurry, Half Moon, Cleaver,
+Pierce, Whirl, Reap and Quake Blow.
 
 ## Secret Arts · 비술
 
@@ -80,11 +106,16 @@ any blast, and sometimes give blood or health. Big attacks leave craters, scorch
 These were inspired by the spells of *Small Magic* by blendi on Patch (time, the Cleave, the singularity,
 the tornado, ground that breaks). No code or assets from it are used here.
 
+## The dash
+
+The dodge is a forward roll. It leaves a trail of afterimages tinted by your element (red in Bat Form) and kicks up dust. The dash slash, Blood Art and counter leave afterimages too, and a perfect dodge bursts into a larger red afterimage.
+
 ## The picture
 
 The scene is drawn to an off-screen image and finished in one pass: bright things (lanterns, flames, slashes, rune
 circles) glow a little into what is around them, colours are graded for contrast with cool shadows and warm
-highlights, the corners fall away, and a trace of grain is added. Outdoor maps are covered in swaying grass with a
+highlights, the corners fall away, and a trace of grain is added. Characters and buildings carry a faint cool rim, trees sway, water
+shimmers, the ground has pebbles and worn roads, and fireflies drift at night. Outdoor maps are covered in swaying grass with a
 few flowers, tinted by season. The pause menu has a switch for the glow and grading if a device struggles.
 
 ## Sandbox · 모래판
@@ -134,7 +165,7 @@ When you ship a change, bump `CACHE` in `sw.js` so installed copies update.
 | --- | --- | --- |
 | Move | WASD | left stick |
 | Attack (tap ×5, hold for finishers) | click / J | 참 |
-| Dodge | Space | 피 |
+| Dash (dodge) | Space | 피 |
 | Parry | right-click / K | 막 |
 | Blood Art | E / Shift | 혈 |
 | Swap element | Q / Tab | 원 |

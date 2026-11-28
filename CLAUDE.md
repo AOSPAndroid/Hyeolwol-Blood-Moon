@@ -74,6 +74,19 @@ Fonts come from Google Fonts (Gowun Batang, Nanum Brush Script) with serif fallb
 - Glow takes what is brighter than 0.93 in its brightest channel, and mostly only saturated colours: near-white surfaces get 12% of it, so pale robes, walls and blossoms under lamps do not flare. Effects that should glow need colour in them.
 - `addGrass` scatters instanced tufts (one shared geometry and material, wind sway in the vertex shader, time in `grassU`) in 700-unit tiles so off-screen tiles are culled. Chapters call it from `buildStory`, open-world chunks from `owBuild`; the arena has none.
 
+## Afterimages
+
+- `ghostSnap(col, opacity, life, grow)` bakes the player model's current pose (every visible opaque mesh, world space, positions only) into one mesh with a tinted transparent material. `ghostSpawnTick` (from `artsTick`, game time) spawns them during dodge, art, counter and dash attacks; `ghostTick` (from `render`, animation time) fades and frees them. At most 18 live. `dashBurst` adds the dust, ring and ground streak.
+- The dodge is the original forward roll; afterimages follow it.
+
+## Forms, paired element, charged attacks, scene shaders
+
+- Forms: `FORMS[element]` holds three entries `{id,h,n,cost,dur,pose,go(F)}`. `go` schedules the technique with `F_dash(F,at,angle,dist,dur,width,hit)` and `F_at(F,t,fn)`; damage goes through `fCut` (an arc, with the element's painted slash) or `fLine`. The player is in state `form` (untouchable); poses are `lunge`, `spin`, `flip`, `leap`, `still`. `curArts()` is `ARTS` plus the current element's forms, so art indices 7–9 change with the element.
+- Paired element: `subEl()` is the element swapped from (`P.sub`). `swingFx` draws its slash inside the main one and `subHit` applies its status. `EMAX` caps owned elements at three (`offerCards` and `elemCard`).
+- Charged attacks: `WPN[id].charge(p,a,base)` runs from `doHit` when the charged thrust lands; returning true replaces the thrust's own hit.
+- Scene shaders: `RIM` (every toon material from `mat()`), `FOL` (foliage sway, assigned in `storyMats`), `WATER`. All take time from `grassU`.
+- Snow is `frost` in code (`frostHit`, `frostReact`, `castBlizzard`, `frostUlt`, `blizz`); it slows through `e.frostN` in `updEnemy`.
+
 ## Sandbox notes
 
 - `G.sandbox` marks sandbox play; `toMenu` clears it. It runs on top of the other modes: `sbxGo` switches the map while keeping the player (`a0`–`a2` arena stages, `c0`–`c4` chapter maps with `S.step=999` so no script runs, `ow` open world with no main quest).
