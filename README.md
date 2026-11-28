@@ -21,20 +21,22 @@ The main mode. Joseon in 1624, a year after a palace coup. The world is generate
 
 **Weapons** (picked after your element; all change reach, speed, damage and arc):
 
-| Weapon | Its rule |
-| --- | --- |
-| 환도 · Hwando | The balanced sabre |
-| 쌍검 · Twin Blades | Much faster, shorter, lighter |
-| 월도 · Crescent Glaive | Two-handed polearm with long sweeping reach |
-| 대검 · Greatsword | Two-handed, slow, crushing |
-| 창 · Spear | The longest reach, in a narrow line |
-| 편곤 · Flail | Wide swings that always break a guard |
-| 혈겸 · Blood Sickle | Every hit gives a little health and extra blood |
-| 철퇴 · Iron Mace | Every third blow on a foe dazes it |
+| Weapon | Its rule | Its swing |
+| --- | --- | --- |
+| 환도 · Hwando | Parry window 30% wider | A clean arc |
+| 쌍검 · Twin Blades | Every cut strikes twice | Two thin crossing arcs |
+| 월도 · Crescent Glaive | Sweeps stagger everything they touch | A huge wide sweep |
+| 대검 · Greatsword | Breaks guards; 45% less damage taken mid-swing | A thick arc that cracks the ground |
+| 창 · Spear | +40% damage at the tip of its reach | Straight thrust lines |
+| 편곤 · Flail | Every swing goes all the way around you and breaks guards | A full ring |
+| 혈겸 · Blood Sickle | Hooks foes toward you; health and blood on every hit | A tight hook |
+| 철퇴 · Iron Mace | Blows shock nearby foes; every third dazes | A short arc and an impact ring |
 
 **Elements:** Fire, Water, Wind and Lightning, plus Earth (every fourth hit cracks a foe; a stone wall as its Grand Art),
-Venom (stacking poison that the dying pass on; a poison cloud) and Moon (marks that raise damage and give blood;
-crescent waves). New reactions: Poisoned + Fire, Frozen or Soaked + Earth, Poisoned + Wind.
+Venom (stacking poison that the dying pass on; a poison cloud), Moon (marks that raise damage and give blood;
+crescent waves) and Wood (seeds that root a foe on the third hit and heal you; a grove that heals you and thorns
+foes inside it). New reactions: Poisoned + Fire, Frozen or Soaked + Earth, Poisoned + Wind, Seeded + Fire (wildfire),
+Soaked + Wood (bloom).
 
 **Foe kinds**, each a variant with one rule of its own: Ember Gangshi (bursts after it falls, hurting everything near),
 Ironclad (shrugs off light cuts: use heavies, launches or the flail), Plague Ghost (leaves pools that hurt to stand in),
@@ -44,12 +46,16 @@ Stone Colossus (splits into two when slain).
 **Talismans:** 34 in all. The newer ones add rules rather than numbers: a shade that repeats finishers, lightning on
 every tenth hit, breakables that burst, executions that stop time, thorns, and more.
 
+Cuts are painted in a bold woodblock manner. Every element shares one recipe (a thick banded body, big outlined
+clumps along its edge, small pieces flying off) with its own ornaments: water foam, flame clusters, wind curls,
+lightning forks, rocks, venom bubbles and drips, moon crescents, leaves and blossoms.
+
 A combo display shows the hit count and its timer, your style rank and progress to the next, and the five steps of
 the attack string with the hold-finisher available at each.
 
 ## Secret Arts · 비술
 
-A second ability, held and let go: **F**, the mouse wheel button, or the 술 button on touch. **1–4** or **R**
+A second ability, held and let go: **F**, the mouse wheel button, or the 술 button on touch. **1–7** or **R**
 (the 택 button) picks the art. Every art costs blood.
 
 | Art | What it does |
@@ -58,6 +64,15 @@ A second ability, held and let go: **F**, the mouse wheel button, or the 술 but
 | 혈와 · Blood Vortex | Opens a singularity that drags foes (and loose debris) in while held, then bursts when let go. |
 | 시간 · Time | Tap: stop time for 3.5 seconds. Foes and their projectiles freeze, you keep moving, and your blows land when time resumes. Hold: wind the fight back, restoring your position and health. |
 | 일섬 · The Cleave | Time stops while held. Drag a line with the mouse (or aim with the stick) and let go: one cut through every foe, projectile and breakable on it. |
+| 혈영 · Shadow Legion | Shades dash through three to six foes, one after another. |
+| 혈우 · Blood Starfall | Blood blades rain on the area you aim at. |
+| 혈쇄 · Blood Chain | Binds every foe in a growing circle: they are held, and for six seconds share part of any damage one of them takes. |
+
+**Ultimates (오의):** keep holding a Grand Art past full charge until the circle turns white, then let go.
+Fire Dragon (a line of explosions), Tidal Wave (a wall of water that carries foes off), Typhoon (three tornadoes),
+Judgment (lightning on every foe), Earthquake (three rings of rising stone), Plague Sea (a huge poison cloud) and
+Eclipse (slows time, marks and strikes every foe, heals you) and World Tree (roots erupt under every foe and a great
+grove heals you).
 
 The world breaks: jars, crates and barrels shatter into tumbling pieces under a blade, a roll, a thrown foe or
 any blast, and sometimes give blood or health. Big attacks leave craters, scorch marks and gashes for a while.

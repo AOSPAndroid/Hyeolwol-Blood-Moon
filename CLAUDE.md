@@ -1,6 +1,6 @@
 # Working on Hyeolwol
 
-Single-file browser game: everything lives in `index.html` (about 2,500 long lines, one IIFE).
+Single-file browser game: everything lives in `index.html` (about 2,600 long lines, one IIFE).
 No build, no dependencies beyond the vendored `three.min.js` (r128, global `THREE`, aliased `T`).
 Fonts come from Google Fonts (Gowun Batang, Nanum Brush Script) with serif fallbacks.
 
@@ -55,10 +55,18 @@ Fonts come from Google Fonts (Gowun Batang, Nanum Brush Script) with serif fallb
 ## Weapons, elements, enemy kinds
 
 - Weapons: `WPN` (multipliers `range`, `dmg`, `spd`, `arc`, `kb`; blade shape `L`, `w`, `cv`, shaft `sh`; flags `twin`, `gb`; hook `hitE(e,p)`). `doHit` copies the attack with the weapon applied; `setWeapon` rebuilds the player model. The choice is `WSEL` (saved in `localStorage`).
-- Elements: `ELEM`/`EK`/`EDESC` hold all seven. Fire, water, wind and bolt live in `elemHit`/`elemBurst`/`artEnd`; earth, venom and moon in `elemHit2`/`elemBurst2`/`artEnd2`, reactions in `react2`, statuses (`e.venom`, `e.mark`, `e.quake`) tick in `elemTick`. Grand arts: `castWall`, `castMiasma`, `castCrescent`.
+- Elements: `ELEM`/`EK`/`EDESC` hold all eight. Fire, water, wind and bolt live in `elemHit`/`elemBurst`/`artEnd`; earth, venom and moon in `elemHit2`/`elemBurst2`/`artEnd2`, reactions in `react2`, statuses (`e.venom`, `e.mark`, `e.quake`) tick in `elemTick`. Grand arts: `castWall`, `castMiasma`, `castCrescent`.
 - Enemy kinds: an `ET` entry with `base` is a variant of that type (same model, AI and pose) with its own stats, `tint`, model scale `ms`, speed `sm` and one rule. `spawn` turns it into the base type with `e.kind` set; rules live in `kindInit`, `kindTick`, `kindDeath` and two lines in `hitEnemy`/`strikePlayer`. A wholly new type still needs the full list under Conventions.
+- Wood is the eighth element, added after the others (`ELEM.wood`, `EK.push`): `woodHit`, `woodBurst`, `woodReact`, `castGrove`, `woodUlt`, `groves`.
 - Chapters: `CH1457` and `CH1866` are spliced into `CHAPTERS` after it is defined, so chapter indices are 0–6.
 - Combo display: `comboHUD` (also draws hit sparks). Hunter polish: `slashFx` (element flourish along a cut), the sash ribbon in `elemRender`, dust in `elemTick`.
+
+## Swing art, weapon identity, more arts
+
+- `slashArt(k)` paints each element's slash strip (1024×256, drawn in 512×128 units): `body` for banded fills, then ornaments (`blob` foam, `tear`, `crescent`, `star`, `poly`). `slashTex` uses it for everything but enemy slashes. `mkSlash` adds an additive glow copy and takes `inr` (inner radius factor) and `gc` (glow colour).
+- `swingFx` decides what a swing draws from `wp.fx` (`arc`, `twin`, `wide`, `great`, `thrust`, `spin`, `hook`, `smash`). Weapon rules are fields on `WPN` read in `doHit`, `strikePlayer` and the parry: `gb`, `int`, `armor`, `parry`, `dmgE`, `hitE`, negative `kb`.
+- `weaponLift` runs after `updPlayerM` and rotates the weapon so its point never goes under the floor.
+- Arts added in `ART2` (`legion`, `starfall`, `chain`): each has `cast(c)` and optionally `hold(dt)`. Ultimates: holding a Grand Art past 2.2 s sets `A.ult`; release calls `castUlt(k,sc)`. `arts2Tick` runs tidal waves and chain timers, `arts2Render` the casting aura.
 
 ## Sandbox notes
 
