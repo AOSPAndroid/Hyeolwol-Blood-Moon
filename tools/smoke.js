@@ -18,7 +18,7 @@ const server = http.createServer((q, r) => {
   const errors = []; page.on('pageerror', e => errors.push(e.message));
   await page.goto('http://localhost:' + server.address().port + '/');
   if (process.env.STORY) { await page.click('#storyB'); await page.click('#chlist .chap'); } else await page.click('#start');
-  await page.click('#ecards .card');
+  await page.click('#ecards .card'); await page.click('#wcards .card');
   await page.evaluate(() => { const h = window.__hw; h.G.cap = 12;
     for (const t of ['guard', 'archer', 'wisp', 'brute', 'yangban', 'mudang', 'gwishin', 'bat']) h.G.queue.push(t);
     setInterval(() => { const P = h.P, r = Math.random(); if (P.hp < 50) P.hp = P.maxHp;

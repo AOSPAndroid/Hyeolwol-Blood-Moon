@@ -1,6 +1,6 @@
 # Working on Hyeolwol
 
-Single-file browser game: everything lives in `index.html` (about 2,400 long lines, one IIFE).
+Single-file browser game: everything lives in `index.html` (about 2,500 long lines, one IIFE).
 No build, no dependencies beyond the vendored `three.min.js` (r128, global `THREE`, aliased `T`).
 Fonts come from Google Fonts (Gowun Batang, Nanum Brush Script) with serif fallbacks.
 
@@ -51,6 +51,14 @@ Fonts come from Google Fonts (Gowun Batang, Nanum Brush Script) with serif fallb
 - Breakables: `props` (`{x,y,kind,r,rot,dead}`), broken through `breakProp`. `doHit` calls `hitProps`, `aoe` calls `breakProps`, `propsPhys` handles collisions. Arena gets them in `nextRoom` (`arenaProps`), chapters in `buildStory` (`storyProps`), open-world chunks own theirs (`C.props`, merged in `owRefresh`).
 - `debris` is drawn with one `InstancedMesh`; `scars` (crater, scorch, gash) are ground decals that fade; `twisters`, `booms` are short-lived effects. All are plain arrays synced to meshes in `artsRender`.
 - The ideas came from Small Magic (Patch licence, cannot leave Patch): never copy its code or assets into this repo.
+
+## Weapons, elements, enemy kinds
+
+- Weapons: `WPN` (multipliers `range`, `dmg`, `spd`, `arc`, `kb`; blade shape `L`, `w`, `cv`, shaft `sh`; flags `twin`, `gb`; hook `hitE(e,p)`). `doHit` copies the attack with the weapon applied; `setWeapon` rebuilds the player model. The choice is `WSEL` (saved in `localStorage`).
+- Elements: `ELEM`/`EK`/`EDESC` hold all seven. Fire, water, wind and bolt live in `elemHit`/`elemBurst`/`artEnd`; earth, venom and moon in `elemHit2`/`elemBurst2`/`artEnd2`, reactions in `react2`, statuses (`e.venom`, `e.mark`, `e.quake`) tick in `elemTick`. Grand arts: `castWall`, `castMiasma`, `castCrescent`.
+- Enemy kinds: an `ET` entry with `base` is a variant of that type (same model, AI and pose) with its own stats, `tint`, model scale `ms`, speed `sm` and one rule. `spawn` turns it into the base type with `e.kind` set; rules live in `kindInit`, `kindTick`, `kindDeath` and two lines in `hitEnemy`/`strikePlayer`. A wholly new type still needs the full list under Conventions.
+- Chapters: `CH1457` and `CH1866` are spliced into `CHAPTERS` after it is defined, so chapter indices are 0–6.
+- Combo display: `comboHUD` (also draws hit sparks). Hunter polish: `slashFx` (element flourish along a cut), the sash ribbon in `elemRender`, dust in `elemTick`.
 
 ## Sandbox notes
 
