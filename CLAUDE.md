@@ -1,4 +1,6 @@
-# Working on Hyeolwol
+# Working on Crest Blade (원소검객)
+
+The game was called Hyeolwol: Blood Moon. Storage keys (`hyeolwol_*`) and the test hook `window.__hw` keep the old prefix on purpose so saves survive; 혈월 / the blood moon is still the story's red moon.
 
 Single-file browser game: everything lives in `index.html` (about 2,600 long lines, one IIFE).
 No build, no dependencies beyond the vendored `three.min.js` (r128, global `THREE`, aliased `T`).

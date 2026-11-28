@@ -1,4 +1,6 @@
-# 혈월 · Hyeolwol: Blood Moon
+# 원소검객 · Crest Blade
+
+*Formerly Hyeolwol: Blood Moon.*
 
 A top-down action roguelike set in Joseon Korea. You play a half-vampire hunter clearing a
 court of gangshi, vampire nobles and ghosts with timed parries, perfect dodges, combo strings,
@@ -172,7 +174,7 @@ your respawn point. Press M or tap the minimap for the full map.
 
 ## Play
 
-**Online (installable PWA):** https://aospandroid.github.io/Hyeolwol-Blood-Moon/
+**Online (installable PWA):** https://aospandroid.github.io/Crest-Blade/
 On a phone, open it and choose "Install app" (Android) or Share → "Add to Home Screen" (iPhone). It works offline after the first visit.
 
 It is a static site with no build step.
