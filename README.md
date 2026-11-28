@@ -84,6 +84,10 @@ Pierce, Whirl, Reap and Quake Blow.
 A second ability, held and let go: **F**, the mouse wheel button, or the 술 button on touch. **1–7** or **R**
 (the 택 button) picks the art. Every art costs blood.
 
+The **art bar** along the bottom of the screen shows every art and form with its key, its blood cost and whether you can
+afford it; the name of the one you have picked sits above it. You can click a slot to pick it. On a phone the bar is two
+rows at the top: tap a slot to pick it, and tap a picked Form again to cast it.
+
 | Art | What it does |
 | --- | --- |
 | 대술 · Grand Art | Gathers your current element while held. Fire: an explosion at the aim point that leaves a crater. Water: a frost stream that soaks and freezes. Wind: a tornado that follows your aim and throws foes up. Lightning: a volley of strikes. |
@@ -111,6 +115,27 @@ the tornado, ground that breaks). No code or assets from it are used here.
 The dodge is a forward roll. It leaves a trail of afterimages tinted by your element (red in Bat Form) and kicks up dust. The dash slash, Blood Art and counter leave afterimages too, and a perfect dodge bursts into a larger red afterimage.
 
 ## The picture
+
+Every element has its own crest, painted around its character: curling flames around 火, wave fans around 水, gusts
+around 風, bolts and thunder drums around 雷, and so on. The crest is the aiming circle while you gather a Grand Art,
+and it stamps the ground where the art lands, with the character rising above it. Mastery shows on the hunter: at
+level II every cut leaves an echo, at level III two, the blade glows brighter, and an awakened hunter stands in a
+turning rune ring.
+
+Characters stand taller with longer legs and smaller heads, robes and sleeves have darker trim at the hem and cuffs,
+and they are shaded with cool shadows, warm light and a darker base, so they stand off the ground. Townsfolk in the
+open world are full figures dressed by trade: gat for villagers and merchants, helmets for soldiers, hair pins for
+women, streamers for the shaman.
+
+The world is dressed rather than blocked in: flagstone squares, mottled earth, grass with dark roots, crates and
+barrels with planks and staves, tiled roofs with rounded ridges, soft shadows where buildings and trees meet the
+ground, blossom and maple trees built from clustered canopies, and Korean pines with flat cloud-like pads.
+
+Walls, roofs and trees that stand between the camera and you (or the three foes nearest you) are stippled away in a
+soft circle, so nobody is lost behind a hall.
+
+Every element has its own sound on swings, forms and arts, blades whistle differently by weight, and hits on one foe
+add up into a single number instead of a pile of them.
 
 The scene is drawn to an off-screen image and finished in one pass: bright things (lanterns, flames, slashes, rune
 circles) glow a little into what is around them, colours are graded for contrast with cool shadows and warm

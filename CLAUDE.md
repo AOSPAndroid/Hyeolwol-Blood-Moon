@@ -87,8 +87,65 @@ Fonts come from Google Fonts (Gowun Batang, Nanum Brush Script) with serif fallb
 - Scene shaders: `RIM` (every toon material from `mat()`), `FOL` (foliage sway, assigned in `storyMats`), `WATER`. All take time from `grassU`.
 - Snow is `frost` in code (`frostHit`, `frostReact`, `castBlizzard`, `frostUlt`, `blizz`); it slows through `e.frostN` in `updEnemy`.
 
+## Polish pass: art bar, see-through, sound, numbers
+
+- Art bar: `abarGeo` (layout: one row at the bottom on desktop, two rows of five at the top on touch), `abarSlot`, `abarHit` (called from the canvas, joystick and pad pointer handlers, like `miniHit`), `artBar` (drawn from `artsHUD`). The boss bar sits above it on desktop.
+- See-through: `seeInject` adds a dithered discard to story materials for fragments near the camera-to-fighter line; `seeU` holds four points (player and the three nearest foes), set in `seeTick`. `SEE_P`, `SEE_R`, `SEE_F` are separate functions on purpose: three.js keys compiled programs on `onBeforeCompile.toString()`, so one wrapper function would make every material share one program.
+- Sound: `tone` and `nz` (filtered looping noise with a sweep) feed one compressor (`aout`). `elSfx(k,big,vol)` is each element's voice, `whoosh(wq,heavy)` the blade. `sfx` and `noise` are the older blips.
+- `text()` merges numbers landing on the same spot within 0.35 s, refreshes repeated words and stacks big labels (three at most per spot).
+- The water Grand Art stream is `streamTick`; `frostTick` is the Snow element's tick. Function names in the one IIFE must be unique: a later declaration silently replaces an earlier one.
+- Art and form damage was levelled against three dummies in the sandbox (single-target damage roughly 1.5 to 3 per blood, ultimates above their Grand Art). Re-measure the same way after changing numbers.
+
+## World art pass
+
+- `GND` (ground shader) adds world-space noise to the arena floor, chapter ground and open-world chunk ground: large mottling, patches, grain and a warm/cool drift. Ground canvases are under one pixel per unit, so fine detail belongs in the shader or in real geometry, not in the paint.
+- Plazas are thin slabs (`paveSlabs`, material `M.pave`, a tiling flagstone texture) laid over the painted rectangle. Their top is at 0.3 so ground decals (scars at 1, contact shadows at 0.7) still show.
+- `aoAt(x,y,w,d,a)` lays a soft dark decal (`M.ao`, texture `aoTex`) under houses, halls and trees.
+- Trees are clusters of `SG.leaf` (a jittered icosphere with smooth normals): broadleaf canopies from eight blobs in two tones, pines as flat cloud pads on a stepped trunk (`pine`, `pine2`, `snowL` for snow caps). Foliage colours are deliberately dark hex values: toon materials under the moon, fill and lamps come out roughly 2.5 times brighter, and anything pale clips to white and blooms.
+- Grass tufts have nine blades with dark roots; props use `propTex` plank and stave textures; roof tiles are a 128-pixel texture with rounded ridges.
+- HUD bars are drawn by `hbar` (gradient, gloss line, gold frame).
+
+## Character pass
+
+- Model scale `MS` is 1.45. Going much higher makes weapons look like they reach farther than their hitboxes.
+- `humanoid(M,o)` takes `o.leg` (leg length factor, default 1.2), `o.headS` (head scale, default .87), `o.hemK` (skirt flare factor, default .9) and `o.trim` (hem and cuff band colour; default is the robe colour at 55%, `false` turns it off). Pleated and jagged skirts get no hem band.
+- `CHR` is the character shader (set in `MF` for every character material and in `npcM`): darker toward the feet by world height, cool shadow tint against warm lit tone, a faint cloth weave from local position, a moonlit rim, and a soft roll-off above 0.72 so saturated robes keep their hue instead of clipping.
+- Townsfolk (`kNPC`) are rigged figures from `npcFigure`, dressed by kind from `NPCK` (gat, helmet, hair bun and pin, the shaman's streamers) and posed at rest. They are plain meshes in `S.world`, not batched; their materials are cached on `M_` through `npcM`.
+- `G.camK` multiplies the camera distance (debug only, default 1); handy for inspecting models close up from `__hw.G`.
+
+## Interface
+
+- The main menu holds only the title, story line and mode buttons; the controls list lives in the `#help` overlay (`helpB`/`helpBack`, Esc closes it).
+- Overlays never bury their buttons: in `#pause` the buttons come before the move list (`.mvh` label, `.keys` scrolls inside its own box), and on wide or landscape screens the list moves to a second column.
+- Buttons: `button.big` (primary, red), `button.ghost` (secondary; light on parchment, gold-edged inside `.free`), `button.link` (quiet text link). All have hover and `:focus-visible` states.
+- Pickers: `#ecards` wraps five over four, `#wcards` is a four-column grid of parchment cards, `#cards` (talismans) stay gold. Landscape phones scroll them sideways; upright phones show two per row.
+- The interface CSS pass sits in one block at the end of the stylesheet (`interface pass`) and overrides earlier rules.
+
+## Parry and dodge timing
+
+- Windows: parry 0.22 s from the press (`parryWin`), shrinking to at most 72% after repeated whiffs (`parryFat`); a whiffed parry locks for 0.32 s. Perfect dodge 0.21 s (`perfWin`), dodge i-frames 0.3 s.
+- `parryFace` turns a parry toward the foe about to strike (a wind-up, a lunge or a shot heading in), not the cursor, and `strikePlayer` accepts a parry within 2.3 rad of facing.
+- Grace beat: a blow that lands while the player is idle, attacking or charging is held for 0.07 s (`p.grace`); `graceTick` (after `updPlayer`) resolves it once the player is in parry or dodge, or when the beat runs out. `p.graceOff` stops the held blow from being held again. Unblockable blows still only respect dodges.
+- Cue: an enemy's ring turns white and thicker for the last 0.22 s of its wind-up, and foes within 330 units chime once (lower note for purple, dodge-only blows).
+- Measured with scripted presses against a gang-si, guard and noble: parry works from 0.22 s before the hit to 0.06 s after; perfect dodge from about 0.06 s before to after the hit.
+
+## Element mastery and crests
+
+- Levels I to III already unlock mechanics (`EDESC`: II changes finishers, III changes the Blood Art). They are now visible too: `lvEcho` adds one echo of each cut at II and two at III, the blade's emissive glow strengthens with level, and at III `awakenRender` draws two counter-rotating rune rings under the hunter with rising motes. `elemLevelUp(k,lv)` (called from `elemCard` and `sbxSetEl`) shows a banner with what the level unlocks, a burst and a chime.
+- Crests: `CREST[k]` holds each element's character and three colours; `crestPaint` draws the emblem (fire: curling flame tongues; water: seigaiha fans; wind: spiral gusts; lightning: zigzag bolts and drums; earth: tortoise-shell hexagons; venom: drips and bubbles; moon: crescents; wood: leaf wreath; snow: a branched snow crest). `crestTex` is flipped (`flipY=false`) so the character reads correctly on the ground. Crests are 1024 px (768 on touch devices), signs 512 px, slash strips 2048×512 (1024×256 on touch devices); textures are built only for elements that are used.
+- While a Grand Art gathers, `sigA`/`sigB` use `crestMat(k)` instead of the plain sigil. `crestStamp(k,x,y,R,life)` blooms a crest on the ground where the art lands (ultimates get a bigger one) and a `signTex` sprite of the character rises and fades above it. Six at most, pooled in `crPool`.
+
+## Effect art
+
+- Every special attack stamps a crest (`crestStamp`): Grand Arts and ultimates use the element's crest; forms (small, at the hunter) and charged attacks use the current element's; the blood arts have their own (`CREST.blood` 血 for the Blood Art, `vortex` 渦, `time` 時, `cleave` 斬, `legion` 影, `starfall` 星, `chain` 鎖), drawn by `crestMotif` (drops, tomoe, clock, slash, stars, links). Eight at most at once.
+- Wood's grove is a bamboo grove (`mkGrove`/`updGrove`): one textured cylinder per stalk (nodes painted in `bambooTex`, UVs scaled per height in `bambooGeo`), merged leaf sprays (`leafSprayGeo`), a moss-and-litter disc (`mossTex`), sway and drifting leaves.
+- Earth walls are faceted rock (`rockGeo`), earth and ice spikes are leaning faceted shards (`shardGeo`, one cached material per colour in `shardMat`), the venom cloud is two turning layers of `miasmaTex` with bubbles, the blizzard ground is `frostTex`, and the tornado layers carry scrolling brush streaks (`windTex`).
+- Painted effect textures are built once on first use through `tx()`; `texDisc(map,opacity,additive)` makes a flat textured disc.
+- Awakened (element level III): `awakenRender` turns the element's crest underfoot, draws a rising-wisp aura sprite (`auraTex`) tinted by the element, and emits element-specific motes.
+
 ## Sandbox notes
 
+- The sandbox panel is tabbed (`sbxTab`: map, foe, rule, gear, rel; `tab:` actions in `sbxAct`). Only `.spage` scrolls, and only on short screens.
 - `G.sandbox` marks sandbox play; `toMenu` clears it. It runs on top of the other modes: `sbxGo` switches the map while keeping the player (`a0`–`a2` arena stages, `c0`–`c4` chapter maps with `S.step=999` so no script runs, `ow` open world with no main quest).
 - `G.god`, `G.infBlood`, `G.freezeAI` and `G.tsc` (game speed) are read in `update`/`frame`/`sbxTick`. `die()` revives instantly in the sandbox, and `owSave` never writes from it.
 
@@ -123,5 +180,5 @@ Software rendering runs slower than real time, so drive tests by game state, not
 - Balance, timing windows and mobile frame rate have only been checked by scripted and random input, never by hand.
 - Draw calls reach about 300 with a boss and a crowd; the ink outlines roughly double character draw calls.
 - The three arena stages share geometry; only floor texture, lighting and weather differ.
-- Story maps are flat; walls and buildings can hide the player when they stand just north of them.
+- Story maps are flat. Buildings between the camera and a fighter are dithered away (`SEE_*`), but NPCs and shrines can still be hidden.
 - No saved meta-progression; only the best score is kept in `localStorage`.
