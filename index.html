@@ -2508,21 +2508,21 @@ function postInit(w,h){const o=POST;if(o.rt){o.rt.dispose();for(const b of o.b)b
   for(let i=0;i<(coarse?3:4);i++){const t=new T.WebGLRenderTarget(Math.max(2,bw),Math.max(2,bh),{depthBuffer:false});t.texture.minFilter=t.texture.magFilter=T.LinearFilter;t.texture.generateMipmaps=false;o.b.push(t);bw>>=1;bh>>=1}
   o.w=w;o.h=h;if(o.scene)return;const vs='varying vec2 vUv;void main(){vUv=uv;gl_Position=vec4(position.xy,0.,1.);}';
   o.mDown=new T.ShaderMaterial({uniforms:{t:{value:null},px:{value:new T.Vector2()},th:{value:0}},vertexShader:vs,depthTest:false,depthWrite:false,
-    fragmentShader:'varying vec2 vUv;uniform sampler2D t;uniform vec2 px;uniform float th;void main(){vec3 c=(texture2D(t,vUv+px*vec2(-1.,-1.)).rgb+texture2D(t,vUv+px*vec2(1.,-1.)).rgb+texture2D(t,vUv+px*vec2(-1.,1.)).rgb+texture2D(t,vUv+px*vec2(1.,1.)).rgb)*.25;if(th>0.){float l=dot(c,vec3(.2126,.7152,.0722));c*=smoothstep(th,th+.12,l);}gl_FragColor=vec4(c,1.);}'});
-  o.mFinal=new T.ShaderMaterial({uniforms:{t:{value:null},b0:{value:null},b1:{value:null},b2:{value:null},b3:{value:null},tm:{value:0},res:{value:new T.Vector2()},glow:{value:.7}},vertexShader:vs,depthTest:false,depthWrite:false,
+    fragmentShader:'varying vec2 vUv;uniform sampler2D t;uniform vec2 px;uniform float th;void main(){vec3 c=(texture2D(t,vUv+px*vec2(-1.,-1.)).rgb+texture2D(t,vUv+px*vec2(1.,-1.)).rgb+texture2D(t,vUv+px*vec2(-1.,1.)).rgb+texture2D(t,vUv+px*vec2(1.,1.)).rgb)*.25;if(th>0.){float k=max(c.r,max(c.g,c.b)),sat=k-min(c.r,min(c.g,c.b));c*=smoothstep(th,th+.06,k)*(.12+.88*smoothstep(.18,.5,sat));}gl_FragColor=vec4(c,1.);}'});
+  o.mFinal=new T.ShaderMaterial({uniforms:{t:{value:null},b0:{value:null},b1:{value:null},b2:{value:null},b3:{value:null},tm:{value:0},res:{value:new T.Vector2()},glow:{value:.5}},vertexShader:vs,depthTest:false,depthWrite:false,
     fragmentShader:`varying vec2 vUv;uniform sampler2D t,b0,b1,b2,b3;uniform float tm,glow;uniform vec2 res;
       float hash(vec2 p){return fract(sin(dot(p,vec2(12.9898,78.233)))*43758.5453);}
       void main(){vec3 c=texture2D(t,vUv).rgb;vec3 b=texture2D(b0,vUv).rgb*.45+texture2D(b1,vUv).rgb*.7+texture2D(b2,vUv).rgb*.9+texture2D(b3,vUv).rgb;c+=b*glow;
-        float l=dot(c,vec3(.2126,.7152,.0722));c=mix(vec3(l),c,1.14);
-        c=clamp(c,0.,1.);c=mix(c,c*c*(3.-2.*c),.22);
-        l=dot(c,vec3(.2126,.7152,.0722));c+=(1.-l)*vec3(-.006,.0,.022)*.9+l*vec3(.024,.01,-.018);
+        float l=dot(c,vec3(.2126,.7152,.0722));c=mix(vec3(l),c,1.06);
+        c=clamp(c,0.,1.);c=mix(c,c*c*(3.-2.*c),.12);
+        l=dot(c,vec3(.2126,.7152,.0722));c+=(1.-l)*vec3(-.004,.0,.016)*.9+l*vec3(.012,.004,-.012);
         vec2 q=(vUv-.5)*vec2(1.12,1.);c*=1.-.3*smoothstep(.25,.95,dot(q,q)*2.);
         c=pow(max(c,0.),vec3(1./2.2));c+=(hash(vUv*res+fract(tm)*61.)-.5)*.018;gl_FragColor=vec4(c,1.);}`});
   o.scene=new T.Scene();o.cam=new T.OrthographicCamera(-1,1,1,-1,0,1);o.quad=new T.Mesh(new T.PlaneGeometry(2,2),o.mDown);o.quad.frustumCulled=false;o.scene.add(o.quad)}
 function postRender(){const o=POST;grassU.value=performance.now()/1000;if(!o.on){renderer.render(scene,camera);return}
   try{const w=renderer.domElement.width,h=renderer.domElement.height;if(o.w!==w||o.h!==h)postInit(w,h);
     renderer.setRenderTarget(o.rt);renderer.render(scene,camera);let src=o.rt.texture,sw=w,sh=h;o.quad.material=o.mDown;const u=o.mDown.uniforms;
-    for(let i=0;i<o.b.length;i++){u.t.value=src;u.px.value.set(1/sw,1/sh);u.th.value=i?0:.9;renderer.setRenderTarget(o.b[i]);renderer.render(o.scene,o.cam);src=o.b[i].texture;sw=o.b[i].width;sh=o.b[i].height}
+    for(let i=0;i<o.b.length;i++){u.t.value=src;u.px.value.set(1/sw,1/sh);u.th.value=i?0:.93;renderer.setRenderTarget(o.b[i]);renderer.render(o.scene,o.cam);src=o.b[i].texture;sw=o.b[i].width;sh=o.b[i].height}
     renderer.setRenderTarget(null);const f=o.mFinal.uniforms;f.t.value=o.rt.texture;f.b0.value=o.b[0].texture;f.b1.value=o.b[1].texture;f.b2.value=o.b[2].texture;f.b3.value=(o.b[3]||o.b[2]).texture;f.tm.value=grassU.value;f.res.value.set(w,h);
     o.quad.material=o.mFinal;renderer.render(o.scene,o.cam)}
   catch(e){o.on=false;renderer.setRenderTarget(null);renderer.render(scene,camera)}}
@@ -2670,7 +2670,7 @@ function updPlayerM(){const p=P,u=pm.userData,R=u.R,a=p.atk,kS=1-Math.exp(-adt*1
   const rg=u.rg;rg.visible=false;
   if(p.state==='charge'){const ck=clamp((p.chargeT-.2)/.6,0,1);rg.visible=true;rg.scale.setScalar(32-13*ck);rg.material.color.setHex(ck>=1?0xffffff:0xffd34d);rg.material.opacity=.4+.6*ck}
   else if(p.parryFx>0){rg.visible=true;rg.scale.setScalar(20+70*(1-p.parryFx/.3));rg.material.color.setHex(0xdff3ff);rg.material.opacity=p.parryFx/.3}
-  pLight.position.set(p.x,42,p.y);pLight.color.setHex(crit?0xff4050:0xffe2c0);pLight.intensity=crit?1:.55}
+  pLight.position.set(p.x,42,p.y);pLight.color.setHex(crit?0xff4050:0xffe2c0);pLight.intensity=crit?.8:.38}
 
 function buildEnemy(e){const g=new T.Group(),b=new T.Group(),mats=[],t=e.type,tr=t==='gwishin'||t==='boss2',M=MF(mats,tr),
   u={b,mats,h:38,fly:0,ph:rnd(0,6),sp:0,lx:e.x,ly:e.y,yaw:-e.facing,spin:0,tz:0,stride:.04,vref:180,part:0,fade:tr,bs:MS};g.add(b);g.userData=u;b.scale.setScalar(MS);OUTL=!tr;
@@ -2885,7 +2885,7 @@ function initGL(){if(!T)return false;try{renderer=new T.WebGLRenderer({canvas:gl
   hemi=new T.HemisphereLight(0x6f7fc0,0x1a0c12,.42);scene.add(hemi);
   moon=new T.DirectionalLight(0xc8d4ff,1.05);moon.castShadow=true;const s=moon.shadow,ms=coarse?1024:2048;s.mapSize.set(ms,ms);s.camera.left=-640;s.camera.right=640;s.camera.top=640;s.camera.bottom=-640;s.camera.near=50;s.camera.far=1700;s.bias=-.0008;scene.add(moon);scene.add(moon.target);
   const rim=new T.DirectionalLight(0xff2848,.28);rim.position.set(300,300,-600);scene.add(rim);
-  pLight=new T.PointLight(0xffe2c0,.55,270,2);scene.add(pLight);bossLight=new T.PointLight(0xff2030,0,380,2);scene.add(bossLight);
+  pLight=new T.PointLight(0xffe2c0,.38,270,2);scene.add(pLight);bossLight=new T.PointLight(0xff2030,0,380,2);scene.add(bossLight);
   buildGeo();buildWorld();pm=buildPlayer();pm.visible=false;scene.add(pm);
   ptsGeo=new T.BufferGeometry();ptsGeo.setAttribute('position',new T.BufferAttribute(new Float32Array(1200),3));ptsGeo.setAttribute('color',new T.BufferAttribute(new Float32Array(1200),3));ptsGeo.setDrawRange(0,0);
   const dotT=(()=>{const[c,g]=cvs(32,32),r=g.createRadialGradient(16,16,0,16,16,16);r.addColorStop(0,'#fff');r.addColorStop(.55,'#fff');r.addColorStop(1,'rgba(255,255,255,0)');g.fillStyle=r;g.fillRect(0,0,32,32);return new T.CanvasTexture(c)})();

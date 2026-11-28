@@ -71,7 +71,7 @@ Fonts come from Google Fonts (Gowun Batang, Nanum Brush Script) with serif fallb
 ## Finishing pass and grass
 
 - `postRender` replaces the direct `renderer.render`: scene into `POST.rt` (multisampled on WebGL2), a bright pass and three or four half-size blurs (`mDown`), then `mFinal` (glow, saturation, S-curve, split tone, vignette, gamma, grain). The targets are linear, so `mFinal` applies gamma itself. `POST.on` (pause menu, `localStorage` `hyeolwol_fx`) falls back to the direct render, as does any error.
-- Glow only takes what is brighter than 0.9 in luminance. Pale materials under lamps flare, so keep new materials below that or expect them to glow.
+- Glow takes what is brighter than 0.93 in its brightest channel, and mostly only saturated colours: near-white surfaces get 12% of it, so pale robes, walls and blossoms under lamps do not flare. Effects that should glow need colour in them.
 - `addGrass` scatters instanced tufts (one shared geometry and material, wind sway in the vertex shader, time in `grassU`) in 700-unit tiles so off-screen tiles are culled. Chapters call it from `buildStory`, open-world chunks from `owBuild`; the arena has none.
 
 ## Sandbox notes
